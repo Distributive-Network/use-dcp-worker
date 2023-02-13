@@ -1,0 +1,24 @@
+{
+  "name": "useDCPWorker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Distributive-Network/useDCPWorker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Distributive-Network/useDCPWorker/issues"
+  },
+  "homepage": "https://github.com/Distributive-Network/useDCPWorker#readme",
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "typescript": "^4.9.5"
+  }
+}
