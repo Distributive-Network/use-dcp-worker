@@ -2,9 +2,10 @@
   "name": "useDCPWorker",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/useDCPWorker.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
   },
   "repository": {
     "type": "git",
@@ -20,5 +21,8 @@
   "devDependencies": {
     "@types/react": "^18.0.28",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "bignumber.js": "^9.1.1"
   }
 }

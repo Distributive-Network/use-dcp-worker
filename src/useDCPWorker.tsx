@@ -11,9 +11,130 @@ import {
   useReducer,
   useState,
   createContext,
+  EventHandler,
 } from 'react';
 import BigNumber from 'bignumber.js';
-import { WorkerOptions as IWorkerOptions, Worker, Receipt } from '../types';
+
+declare global {
+  interface Window {
+    dcp: DCP;
+    dcpConfig: any;
+  }
+}
+
+declare interface DCP {
+  wallet: Wallet;
+  worker: {
+    Worker: typeof Worker;
+  };
+}
+
+declare interface Wallet {
+  Address: typeof Address;
+  Keystore: typeof Keystore;
+}
+
+declare class Address {
+  constructor(address: string | Address);
+  address: string;
+  toString(): string;
+
+  eq: (value: any) => boolean;
+}
+
+declare class Keystore {
+  constructor(privateKey: any, passpharase: string | false);
+  address: Address;
+
+  label: string;
+
+  toString(): string;
+
+  eq: (value: any) => boolean;
+}
+
+declare interface IWorkerOptions {
+  [key: string]: any;
+  trustComputeGroupOrigins?: boolean;
+  allowOrigins?: {
+    any: Array<string>;
+    fetchWorkFunctions: Array<string>;
+    fetchArguments: Array<string>;
+    fetchData: Array<string>;
+    sendResults: Array<string>;
+  };
+  minimumWage?: {
+    CPU: number;
+    GPU: number;
+    in: number;
+    out: number;
+  };
+  computeGroups?: Array<any>;
+  jobAddresses?: Array<string>;
+  maxWorkingSandboxes?: number | undefined;
+  paymentAddress?: Address | string | null;
+  evaluatorOptions?: {};
+  shouldStopWorkingImmediately?: boolean;
+}
+
+declare class EventTarget<T> {
+  on<E extends keyof T>(event: E, eventListener: T[E]): this;
+  off<E extends keyof T>(event: E, eventListener: T[E]): this;
+}
+
+declare interface Receipt {
+  payment: string;
+}
+
+declare type JobDetails = {
+  description: string;
+  link: string;
+  name: string;
+};
+
+declare class Sandbox extends EventTarget<any> {
+  id: string;
+
+  isWorking: boolean;
+
+  public: JobDetails;
+
+  sliceStartTime: number;
+
+  progress: number;
+}
+
+declare interface SupervisorEvents {
+  sandboxStart: EventHandler<any>;
+}
+
+declare class Supervisor extends EventTarget<SupervisorEvents> {
+  maxWorkingSandboxes: number;
+
+  paymentAddress: Address;
+
+  options: IWorkerOptions;
+
+  allocatedSandboxes: Sandbox[];
+}
+
+declare interface WorkerEvents {
+  start: EventHandler<any>;
+  fetchStart: EventHandler<any>;
+  error: EventHandler<any>;
+  fetchEnd: EventHandler<any>;
+  stop: EventHandler<any>;
+  payment: EventHandler<any>;
+}
+
+declare class Worker extends EventTarget<WorkerEvents> {
+  constructor(identity: Keystore, options: IWorkerOptions);
+  start: () => Promise<void>;
+
+  stop: (shouldstopImmediately: boolean) => Promise<void>;
+
+  supervisor: Supervisor;
+}
 
 var workerOptions: IWorkerOptions;
 
@@ -534,4 +655,3 @@ const useDCPWorker = ({
 };
 
 export default useDCPWorker;
-
