@@ -103,4 +103,5 @@ This hook returns an object with the following properties:
 ## 1.0.0
 - initial release.
 
-# Lisense
+# License
+Please refer to the [LICENSE](LICENSE) file for more information.
