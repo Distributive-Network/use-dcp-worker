@@ -1,5 +1,5 @@
 {
-  "name": "useDCPWorker",
+  "name": "use-dcp-worker",
   "version": "1.0.0",
   "description": "",
   "main": "lib/useDCPWorker.js",
