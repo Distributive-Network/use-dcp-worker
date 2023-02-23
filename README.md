@@ -1,4 +1,4 @@
-# useDCPWorker
+# use-dcp-worker
 ## What is DCP?
 DCP, Distributive Compute Protocol, is a fast, secure, and powerful parallel computing platform built on web technology. DCP breaks large compute workloads into small slices, computes them in parallel on different devices, and returns the results to the client.
 
@@ -8,7 +8,7 @@ Find out more at https://kingsds.network/.
 
 How to install:
 ```
-npm install useDCPWorker
+npm install use-dcp-worker
 ```
 
 # Setup
@@ -34,7 +34,7 @@ root.render(
 # Usage
 Once setup, the hook can be used anywhere inside the `WorkerProvider` as such:
 ```js
-import useDCPWorker from 'useDCPWorker';
+import useDCPWorker from 'use-dcp-worker';
 
 function Worker() {
   const { 
