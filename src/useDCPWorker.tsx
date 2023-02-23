@@ -133,7 +133,9 @@ declare class Worker extends EventTarget<WorkerEvents> {
 
   stop: (shouldstopImmediately: boolean) => Promise<void>;
 
-  supervisor: Supervisor;
+  supervisorOptions: any;
+
+  workingSandboxes:  Array<any>;
 }
 
 var workerOptions: IWorkerOptions;
@@ -504,7 +506,7 @@ const useDCPWorker = ({
   if (!workerOptions) {
     // if worker in state is loaded, pass options reference from supervisor
     if (workerState.isLoaded && worker !== null) {
-      workerOptions = worker.supervisor.options;
+      workerOptions = worker.supervisorOptions;
     } else {
       // useLocalStorage will overide options.workerOptions
       if (options && useLocalStorage) workerOptions = loadWorkerOptions();
@@ -514,9 +516,9 @@ const useDCPWorker = ({
       if (workerOptions === null || !useLocalStorage) {
         workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
         if (options.paymentAddress instanceof window.dcp.wallet.Keystore)
-          options.paymentAddress = options.paymentAddress.address.address;
+          options.paymentAddress = new window.dcp.wallet.Address(options.paymentAddress.address);
         else if (options.paymentAddress instanceof window.dcp.wallet.Address)
-          options.paymentAddress = options.paymentAddress.address;
+          options.paymentAddress = new window.dcp.wallet.Address(options.paymentAddress)
         workerOptions.computeGroups = [];
         applyWorkerOptions(options);
       }
@@ -565,7 +567,7 @@ const useDCPWorker = ({
           lastStarted = Date.now();
           dispatchWorkerState({
             type: 'SET_WORKING_SANDBOXES',
-            data: dcpWorker.supervisor.allocatedSandboxes.length,
+            data: dcpWorker.workingSandboxes.length,
           });
         };
 
@@ -581,7 +583,7 @@ const useDCPWorker = ({
 
           dispatchWorkerState({
             type: 'SET_WORKING_SANDBOXES',
-            data: dcpWorker.supervisor.allocatedSandboxes.length,
+            data: dcpWorker.workingSandboxes.length,
           });
         };
 
@@ -650,7 +652,7 @@ const useDCPWorker = ({
     stopWorker,
     toggleWorker,
     workerOptionsState,
-    sandboxes: worker ? worker.supervisor.allocatedSandboxes : [],
+    sandboxes: worker ? worker.workingSandboxes : [],
   };
 };
 

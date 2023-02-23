@@ -62,27 +62,6 @@ declare class EventTarget<T> {
     on<E extends keyof T>(event: E, eventListener: T[E]): this;
     off<E extends keyof T>(event: E, eventListener: T[E]): this;
 }
-declare type JobDetails = {
-    description: string;
-    link: string;
-    name: string;
-};
-declare class Sandbox extends EventTarget<any> {
-    id: string;
-    isWorking: boolean;
-    public: JobDetails;
-    sliceStartTime: number;
-    progress: number;
-}
-declare interface SupervisorEvents {
-    sandboxStart: EventHandler<any>;
-}
-declare class Supervisor extends EventTarget<SupervisorEvents> {
-    maxWorkingSandboxes: number;
-    paymentAddress: Address;
-    options: IWorkerOptions;
-    allocatedSandboxes: Sandbox[];
-}
 declare interface WorkerEvents {
     start: EventHandler<any>;
     fetchStart: EventHandler<any>;
@@ -95,7 +74,8 @@ declare class Worker extends EventTarget<WorkerEvents> {
     constructor(identity: Keystore, options: IWorkerOptions);
     start: () => Promise<void>;
     stop: (shouldstopImmediately: boolean) => Promise<void>;
-    supervisor: Supervisor;
+    supervisorOptions: any;
+    workingSandboxes: Array<any>;
 }
 /**
  *  Stores the worker's "state", whether it is loaded, fetching and/or submitting work, and
@@ -162,6 +142,6 @@ declare const useDCPWorker: ({ identity, useLocalStorage, options, }: IUseDCPWor
     stopWorker: () => void;
     toggleWorker: () => void;
     workerOptionsState: IWorkerOptions;
-    sandboxes: Sandbox[];
+    sandboxes: any[];
 };
 export default useDCPWorker;
