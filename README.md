@@ -19,7 +19,7 @@ There are 2 steps to setup the hook in your React projects.
 ```
 2. The `WorkerProvider` component must wrap components you wish to use the worker in. We recommend wrapping the entire `App` component so the hook can be used anywhere:
 ```js
-import { WorkerProvider } from 'useDCPWorker';
+import { WorkerProvider } from 'use-dcp-worker';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
