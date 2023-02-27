@@ -138,7 +138,7 @@ declare class Worker extends EventTarget<WorkerEvents> {
   workingSandboxes:  Array<any>;
 }
 
-var workerOptions: IWorkerOptions;
+let workerOptions: IWorkerOptions;
 
 /**
  *  Stores the worker's "state", whether it is loaded, fetching and/or submitting work, and
@@ -177,7 +177,7 @@ const workerStateReducer = (
   state: IDefaultWorkerState,
   action: { type: string; data: any },
 ) => {
-  let updatedState = { ...state };
+  const updatedState = { ...state };
   if (action.type === 'WORKER_LOADED_TRUE') {
     updatedState.isLoaded = true;
   } else if (action.type === 'SET_WORKING_SANDBOXES') {
@@ -251,7 +251,7 @@ const workerStatsReducer = (
  * passing undefined maxWorkingSanboxes -> supervisor will calculate
  * maxWorkingSandboxes based off the user's hardware
  */
-let defaultWorkerOptions: IWorkerOptions = {
+const defaultWorkerOptions: IWorkerOptions = {
   trustComputeGroupOrigins: true,
   allowOrigins: {
     any: [],
@@ -284,7 +284,7 @@ declare interface IDefaultWorkerContext {
   dispatchWorkerStats: Function;
 }
 
-let defaultWorkerContext: IDefaultWorkerContext = {
+const defaultWorkerContext: IDefaultWorkerContext = {
   worker: null,
   setWorker: () => {},
   workerOptionsState: defaultWorkerOptions,
@@ -371,6 +371,17 @@ function loadWorkerOptions() {
 
   if (!loadedOptions) return null;
 
+  if (
+    Object.prototype.hasOwnProperty.call(loadedOptions, 'paymentAddress')
+  ) {
+    if (loadedOptions.paymentAddress instanceof window.dcp.wallet.Keystore) {
+      loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress);
+    }
+    else if (!(loadedOptions.paymentAddress instanceof window.dcp.wallet.Address)) {
+      loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress);
+    }
+  }
+
   // If the saved options have `defaultMaxWorkers`, change that to `defaultMaxSliceCount`
   if (
     Object.prototype.hasOwnProperty.call(loadedOptions, 'defaultMaxWorkers')
@@ -385,7 +396,7 @@ function loadWorkerOptions() {
 interface IUseDCPWorkerParams {
   identity?: any;
   useLocalStorage?: boolean;
-  options: IWorkerOptions;
+  workerOptions: IWorkerOptions;
 }
 /**
  * This hook enables the use of a DCP web worker. A config object is accepted as a paremeter. This config object can have a
@@ -404,8 +415,8 @@ interface IUseDCPWorkerParams {
  */
 const useDCPWorker = ({
   identity = null,
-  useLocalStorage = false,
-  options,
+  useLocalStorage = true,
+  workerOptions: userWorkerOptions,
 }: IUseDCPWorkerParams) => {
   const {
     worker,
@@ -475,7 +486,7 @@ const useDCPWorker = ({
    *  their local storage to be loaded when they sign in next time.
    */
   const saveWorkerOptions = useCallback(() => {
-    let storageItem = window.localStorage.getItem('worker-options');
+    const storageItem = window.localStorage.getItem('worker-options');
     const storage = storageItem !== null ? JSON.parse(storageItem) : {};
     // Save the worker options indexed by the user's Identity
     storage[getWorkerOptionsKey()] = workerOptions;
@@ -509,18 +520,18 @@ const useDCPWorker = ({
       workerOptions = worker.supervisorOptions;
     } else {
       // useLocalStorage will overide options.workerOptions
-      if (options && useLocalStorage) workerOptions = loadWorkerOptions();
+      if (userWorkerOptions && useLocalStorage) workerOptions = loadWorkerOptions();
 
       // if workerOptions doesn't yet exist in localStorage (first time running) || don't use localStorage
       // use a default workerConfig overritten with user passed options.workerOptions
       if (workerOptions === null || !useLocalStorage) {
         workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
-        if (options.paymentAddress instanceof window.dcp.wallet.Keystore)
-          options.paymentAddress = new window.dcp.wallet.Address(options.paymentAddress.address);
-        else if (options.paymentAddress instanceof window.dcp.wallet.Address)
-          options.paymentAddress = new window.dcp.wallet.Address(options.paymentAddress)
+        if (userWorkerOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
+          userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress.address);
+        else if (userWorkerOptions.paymentAddress instanceof window.dcp.wallet.Address)
+          userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress)
         workerOptions.computeGroups = [];
-        applyWorkerOptions(options);
+        applyWorkerOptions(userWorkerOptions);
       }
     }
   }
@@ -630,7 +641,9 @@ const useDCPWorker = ({
 
       setWorker(dcpWorker);
     }
-    if (worker === null) initializeWorker();
+    if (worker === null) {
+      initializeWorker();
+    }
 
     return () => {
       // might need to unhook dcpWorker listeners
