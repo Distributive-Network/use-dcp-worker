@@ -48,7 +48,7 @@ function Worker() {
       sandboxes,
     } = useDCPWorker({
         workerOptions: {
-          paymentAddress: address
+          paymentAddress: address,
         }
       });
 ```
@@ -59,26 +59,26 @@ The hook accepts a single object with the following parameters:
 - `workerOptions: object`: This object is supplied to the Worker constructor as the `workerOptions` parameter (required). The only required property of the `workerOptions` object needed to provide is a `paymentAddress`. The rest of the properties will get default values.
   - `trustComputeGroupOrigins?: boolean = true`: Trust the scheduler to tell client about allowed origins for jobs in a compute group.
   - `allowOrigins?: object`: Allow list permitting network access beyond DCP messages to services.
-    - `any: []`: A list of origins which are safe to communicated with.
-    - `fetchWorkFunctions: []`: A list of work function URIs that are safe to communicated with.
-    - `fetchArguments: []`: A list of argument datum URIs that are safe to communicated with.
-    - `fetchData: []`: A list of input datum URIs that are safe to communicated with.
-    - `sendResults: []`: A list of URIs that are safe to send results to.
+    - `any: []`: A list of origins which are safe to communicate with.
+    - `fetchWorkFunctions: []`: A list of work function URIs that are safe to communicate with.
+    - `fetchArguments: []`: A list of argument datum URIs that are safe to communicate with.
+    - `fetchData: []`: A list of input datum URIs that are safe to communicate with.
+    - `sendResults: []`: A list of URIs that are safe to send job results to.
   - `minimumWage?: object`: The minimum payout per slice the worker will accept from a job. Will default with the following structure:
     - `CPU: number = 0`
     - `GPU: number = 0`
     - `in: number = 0`
     - `out: number = 0`
-  - `computeGroups?: []`: List of compute groups the worker is in and the authorization to joi them. A compute group is to be described as `{ joinKey: 'exampleGroup', joinSecret: 'password' }`.
+  - `computeGroups?: []`: List of compute groups the worker is in and the authorization to join them. A compute group is to be described as `{ joinKey: 'exampleGroup', joinSecret: 'password' }`.
   - `jobAddresses?: []`: If populated, worker will only fetch slices from jobs corresponding to the job addresses in this list.
-  - `maxWorkingSandboxes?: integer | undefined`: Maximum number of sandboxes allowed to do work. If `undefined` then the Supervisor will determine a safe limit, based off machine hardware.
-  - `paymentAddress: Keystore | Address | String`: A Keystore or Address (`dcp.wallet.Address`) identifying a DCP Bank Account to deposit earned DCCs.
+  - `maxWorkingSandboxes?: integer | undefined`: Maximum number of sandboxes allowed to do work. If `undefined`, then the Supervisor will determine a safe limit, based off of machine hardware.
+  - `paymentAddress: Keystore | Address | String`: A Keystore or Address (`dcp.wallet.Address`) identifying a DCP Bank Account to deposit earned DCCs. An address string can also be supplied.
   - `shouldStopWorkerImmediately?: boolean`: If true, when the worker is called to stop, it will terminate all working sandboxes without waiting for them to finish. If false, the worker will wait for all sandboxes to finish computing before terminating.
 
 Note: Learn more about `Keystore` and `Address` in our [Wallet API documentation](https://docs.dcp.dev/specs/wallet-api.html).
 
 ## Returns
-This hook returns an object with the following properties:
+The `useDCPWorker` hook returns an object with the following properties:
 - `workerState: object`: Stores status of worker states.
   - `isLoaded: boolean`: True once worker is properly initialized.
   - `working: boolean`: True if worker is doing work, false otherwise.
@@ -92,7 +92,7 @@ This hook returns an object with the following properties:
   - `credits: BigNumber`: Total credits earned.
   - `computeTime: number`: Total time computed (ms).
 - `workerOptionsState: object`: Refer to `workerOptions` in Parameters. This is to be treated as a read-only object, mutating it will not update worker options.
-- `sandboxes: object`: List of Sandbox objects of sandboxes currently working. Sandbox objects consist of the properties: `id`, `isWorking`, `public`, `sliceStartTime` and `progress`.
+- `sandboxes: object`: List of Sandbox objects of sandboxes currently working. Sandbox objects consist of the properties: `id`, `isWorking`, `public`, `sliceStartTime`, and `progress`.
 - `setWorkerOptions(): function`: This method updates the `workerOptions` object. The method accepts an object as a parameter and does a leaf merge on the original `workerOptions` object, however, only on the first layer of properties. For example, `setWorkerOptions({ paymentAddress: 'some address' })` will only update the `paymentAddress` property of `workerOptions` and preserve the rest of the object. `setWorkerOptions({ allowOrigins: { any: ['origin'] } })` will update the entirety of `allowOrigins` instead of just `allowOrigins.any`.
 - `startWorker: function`: This method starts the worker.
 - `stopWorker: function`: This method stops the worker.
