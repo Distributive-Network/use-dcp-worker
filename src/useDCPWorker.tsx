@@ -560,7 +560,7 @@ const useDCPWorker = ({
       let dcpWorker: any;
       try {
         delete workerOptions.shouldStopWorkingImmediately;
-        dcpWorker = new window.dcp.worker.Worker(identity, workerOptions);
+        dcpWorker = new window.dcp.worker.Worker(workerId, workerOptions);
         dispatchWorkerState({ type: 'WORKER_LOADED_TRUE' });
         setWorkerOptionsState(workerOptions);
       } catch (error) {
