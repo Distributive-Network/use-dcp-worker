@@ -375,7 +375,7 @@ function loadWorkerOptions() {
     Object.prototype.hasOwnProperty.call(loadedOptions, 'paymentAddress')
   ) {
     if (loadedOptions.paymentAddress instanceof window.dcp.wallet.Keystore) {
-      loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress);
+      loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress.address);
     }
     else if (!(loadedOptions.paymentAddress instanceof window.dcp.wallet.Address)) {
       loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress);
