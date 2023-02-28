@@ -20,6 +20,10 @@
   "homepage": "https://github.com/Distributive-Network/useDCPWorker#readme",
   "devDependencies": {
     "@types/react": "^18.0.28",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
+    "eslint": "^8.35.0",
+    "eslint-plugin-react": "^7.32.2",
     "typescript": "^4.9.5"
   },
   "dependencies": {
