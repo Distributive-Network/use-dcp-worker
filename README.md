@@ -56,7 +56,7 @@ function Worker() {
 The hook accepts a single object with the following parameters:
 - `identity?: Keystore`: A Keystore object (`dcp.wallet.Keystore`) which is passed to the Worker constructor and set as the Worker's identity when communicating over the network. If a Keystore is not provided, an arbitrary one will be generated.
 - `useLocalStorage?: boolean = true`:  A flag to toggle the use of the browser's local storage. The Worker options object is the entity to be saved to local storage and is updated accordingly when calling `setWorkerOptions`.
-- `options: object`: This object is supplied to the Worker constructor as the options paramter (required). The only required property of the options object needed to provide is a `paymentAddress`. The rest of the properties will get default values.
+- `workerOptions: object`: This object is supplied to the Worker constructor as the options paramter (required). The only required property of the options object needed to provide is a `paymentAddress`. The rest of the properties will get default values.
   - `trustComputeGroupOrigins?: boolean = true`:
   - `allowOrigins?: object`: Allow list permitting network access beyond DCP messages to services.
     - `any: []`:
