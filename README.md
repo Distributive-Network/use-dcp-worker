@@ -59,7 +59,7 @@ The hook accepts a single object with the following parameters:
 - `workerOptions: object`: This object is supplied to the Worker constructor as the `workerOptions` parameter (required). The only required property of the `workerOptions` object needed to provide is a `paymentAddress`. The rest of the properties will get default values.
   - `trustComputeGroupOrigins?: boolean = true`: Trust the scheduler to tell client about allowed origins for jobs in a compute group.
   - `allowOrigins?: object`: Allow list permitting network access beyond DCP messages to services.
-    - `any: []`: A list of origins which are safe to communicate with.
+    - `any: []`: A list of origins that are safe to communicate with.
     - `fetchWorkFunctions: []`: A list of work function URIs that are safe to communicate with.
     - `fetchArguments: []`: A list of argument datum URIs that are safe to communicate with.
     - `fetchData: []`: A list of input datum URIs that are safe to communicate with.
