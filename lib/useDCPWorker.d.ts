@@ -117,7 +117,7 @@ export declare const WorkerProvider: (props: any) => JSX.Element;
 interface IUseDCPWorkerParams {
     identity?: any;
     useLocalStorage?: boolean;
-    options: IWorkerOptions;
+    workerOptions: IWorkerOptions;
 }
 /**
  * This hook enables the use of a DCP web worker. A config object is accepted as a paremeter. This config object can have a
@@ -134,7 +134,7 @@ interface IUseDCPWorkerParams {
  *          stopWorker and togglerWorker. workerOptionsState is a readonly object that describes how the worker is currently
  *          configured. To mutate workerOptions, use setWorkerOptions.
  */
-declare const useDCPWorker: ({ identity, useLocalStorage, options, }: IUseDCPWorkerParams) => {
+declare const useDCPWorker: ({ identity, useLocalStorage, workerOptions: userWorkerOptions, }: IUseDCPWorkerParams) => {
     workerState: IDefaultWorkerState;
     workerStatistics: IDefaultWorkerStats;
     setWorkerOptions: (newWorkerOptions: IWorkerOptions) => void;
