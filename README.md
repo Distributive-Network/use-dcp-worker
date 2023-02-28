@@ -47,7 +47,7 @@ function Worker() {
       toggleWorker,
       sandboxes,
     } = useDCPWorker({
-        options: {
+        workerOptions: {
           paymentAddress: address
         }
       });
@@ -55,25 +55,24 @@ function Worker() {
 ## Parameters
 The hook accepts a single object with the following parameters:
 - `identity?: Keystore`: A Keystore object (`dcp.wallet.Keystore`) which is passed to the Worker constructor and set as the Worker's identity when communicating over the network. If a Keystore is not provided, an arbitrary one will be generated.
-- `useLocalStorage?: boolean = true`:  A flag to toggle the use of the browser's local storage. The Worker options object is the entity to be saved to local storage and is updated accordingly when calling `setWorkerOptions`.
-- `workerOptions: object`: This object is supplied to the Worker constructor as the options paramter (required). The only required property of the options object needed to provide is a `paymentAddress`. The rest of the properties will get default values.
+- `useLocalStorage?: boolean = true`:  A flag to toggle the use of the browser's local storage. The `workerOptions` object is the entity to be saved to local storage and is updated accordingly when calling `setWorkerOptions`.
+- `workerOptions: object`: This object is supplied to the Worker constructor as the `workerOptions` parameter (required). The only required property of the `workerOptions` object needed to provide is a `paymentAddress`. The rest of the properties will get default values.
   - `trustComputeGroupOrigins?: boolean = true`:
   - `allowOrigins?: object`: Allow list permitting network access beyond DCP messages to services.
-    - `any: []`:
-    - `fetchWorkFunctions: []`:
-    - `fetchArguments: []`:
-    - `fetchData: []`:
-    - `sendResults: []`:
-  - `minimumWage?: object`:
-    - `CPU: number = 0`:
-    - `GPU: number = 0`:
-    - `in: number = 0`:
-    - `out: number = 0`:
+    - `any: []`: A list of origins which are safe to communicated with.
+    - `fetchWorkFunctions: []`: A list of work function URIs that are safe to communicated with.
+    - `fetchArguments: []`: A list of argument datum URIs that are safe to communicated with.
+    - `fetchData: []`: A list of input datum URIs that are safe to communicated with.
+    - `sendResults: []`: A list of URIs that are safe to send results to.
+  - `minimumWage?: object`: The minimum payout per slice the worker will accept from a job. Will default with the following structure:
+    - `CPU: number = 0`
+    - `GPU: number = 0`
+    - `in: number = 0`
+    - `out: number = 0`
   - `computeGroups?: []`: List of compute groups the worker is in and the authorization to joi them. A compute group is to be described as `{ joinKey: 'exampleGroup', joinSecret: 'password' }`.
   - `jobAddresses?: []`: If populated, worker will only fetch slices from jobs corresponding to the job addresses in this list.
   - `maxWorkingSandboxes?: integer | undefined`: Maximum number of sandboxes allowed to do work. If `undefined` then the Supervisor will determine a safe limit, based off machine hardware.
-  - `paymentAddress: Keystore | Address`: A Keystore or Address (`dcp.wallet.Address`) identifying a DCP Bank Account to deposit earned DCCs.
-  - `evaluatorOptions?: object`:
+  - `paymentAddress: Keystore | Address | String`: A Keystore or Address (`dcp.wallet.Address`) identifying a DCP Bank Account to deposit earned DCCs.
   - `shouldStopWorkerImmediately?: boolean`: If true, when the worker is called to stop, it will terminate all working sandboxes without waiting for them to finish. If false, the worker will wait for all sandboxes to finish computing before terminating.
 
 Note: Learn more about `Keystore` and `Address` in our [Wallet API documentation](https://docs.dcp.dev/specs/wallet-api.html).
@@ -92,9 +91,9 @@ This hook returns an object with the following properties:
   - `slices: number`: Number of slices completed.
   - `credits: BigNumber`: Total credits earned.
   - `computeTime: number`: Total time computed (ms).
-- `workerOptionsState: object`: Refer to `options` in Parameters. This is to be treated as a read-only object, mutating it will not update worker options.
+- `workerOptionsState: object`: Refer to `workerOptions` in Parameters. This is to be treated as a read-only object, mutating it will not update worker options.
 - `sandboxes: object`: List of Sandbox objects of sandboxes currently working. Sandbox objects consist of the properties: `id`, `isWorking`, `public`, `sliceStartTime` and `progress`.
-- `setWorkerOptions(): function`: This method updates the Worker `options` object. The method accepts an object as a parameter and does a leaf merge on the original `options` object, however, only on the first layer of properties. For example, `setWorkerOptions({ paymentAddress: 'some address' })` will only update the `paymentAddress` property of `options` and preserve the rest of the object. `setWorkerOptions({ allowOrigins: { any: ['origin'] } })` will update the entirety of `allowOrigins` instead of just `allowOrigins.any`.
+- `setWorkerOptions(): function`: This method updates the `workerOptions` object. The method accepts an object as a parameter and does a leaf merge on the original `workerOptions` object, however, only on the first layer of properties. For example, `setWorkerOptions({ paymentAddress: 'some address' })` will only update the `paymentAddress` property of `workerOptions` and preserve the rest of the object. `setWorkerOptions({ allowOrigins: { any: ['origin'] } })` will update the entirety of `allowOrigins` instead of just `allowOrigins.any`.
 - `startWorker: function`: This method starts the worker.
 - `stopWorker: function`: This method stops the worker.
 - `toggleWorker: function`: This method starts/stops the worker.
