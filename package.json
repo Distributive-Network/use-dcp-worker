@@ -1,18 +1,28 @@
 {
   "name": "use-dcp-worker",
   "version": "1.0.0",
-  "description": "",
+  "description": "Embed the DCP Worker in a React app",
   "main": "lib/useDCPWorker.js",
+  "directories": {
+    "lib": "lib/"
+  },
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "clean": "tsc --build --clean",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Distributive-Network/useDCPWorker.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["dcp","dcp-worker","react"],
+  "author": "Robert Mirandola <robert@distributive.network>",
+  "contributors": [
+    "Kirill Kirnichansky <kirill@kingsds.network>"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Distributive-Network/useDCPWorker/issues"
