@@ -528,7 +528,7 @@ const useDCPWorker = ({
         workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
         if (userWorkerOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
           userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress.address);
-        else if (userWorkerOptions.paymentAddress instanceof window.dcp.wallet.Address)
+        else if (typeof userWorkerOptions.paymentAddress === 'string')
           userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress)
         workerOptions.computeGroups = [];
         applyWorkerOptions(userWorkerOptions);
