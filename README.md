@@ -93,7 +93,7 @@ The `useDCPWorker` hook returns an object with the following properties:
   - `computeTime: number`: Total time computed (ms).
 - `workerOptionsState: object`: Refer to `workerOptions` in Parameters. This is to be treated as a read-only object, mutating it will not update worker options.
 - `sandboxes: object`: List of Sandbox objects of sandboxes currently working. Sandbox objects consist of the properties: `id`, `isWorking`, `public`, `sliceStartTime`, and `progress`.
-- `setWorkerOptions(): function`: This method updates the `workerOptions` object. The method accepts an object as a parameter and does a leaf merge on the original `workerOptions` object, however, only on the first layer of properties. For example, `setWorkerOptions({ paymentAddress: 'some address' })` will only update the `paymentAddress` property of `workerOptions` and preserve the rest of the object. `setWorkerOptions({ allowOrigins: { any: ['origin'] } })` will update the entirety of `allowOrigins` instead of just `allowOrigins.any`.
+- `setWorkerOptions: function`: This method updates the `workerOptions` object. The method accepts an object as a parameter and does a leaf merge on the original `workerOptions` object, however, only on the first layer of properties. For example, `setWorkerOptions({ paymentAddress: 'some address' })` will only update the `paymentAddress` property of `workerOptions` and preserve the rest of the object. `setWorkerOptions({ allowOrigins: { any: ['origin'] } })` will update the entirety of `allowOrigins` instead of just `allowOrigins.any`.
 - `startWorker: function`: This method starts the worker.
 - `stopWorker: function`: This method stops the worker.
 - `toggleWorker: function`: This method starts/stops the worker.
