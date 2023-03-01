@@ -23,7 +23,7 @@ declare interface Wallet {
     Keystore: typeof Keystore;
 }
 declare class Address {
-    constructor(address: string | Address);
+    constructor(address: string | Address | undefined | null);
     address: string;
     toString(): string;
     eq: (value: any) => boolean;

@@ -35,7 +35,7 @@ declare interface Wallet {
 }
 
 declare class Address {
-  constructor(address: string | Address);
+  constructor(address: string | Address | undefined | null);
   address: string;
   toString(): string;
 
@@ -477,8 +477,15 @@ const useDCPWorker = ({
    */
   const applyWorkerOptions = useCallback((newWorkerOptions: IWorkerOptions) => {
     if (!newWorkerOptions) return null;
-    for (let prop in newWorkerOptions)
+    for (const prop in newWorkerOptions)
+    {
+      if (prop === 'paymentAddress')
+      {
+        if (typeof newWorkerOptions[prop] === 'string')
+          newWorkerOptions[prop] = new window.dcp.wallet.Address(newWorkerOptions[prop])
+      }
       workerOptions[prop] = newWorkerOptions[prop];
+    }
   }, []);
 
   /**
