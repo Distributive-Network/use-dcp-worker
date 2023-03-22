@@ -177,6 +177,7 @@ const workerStateReducer = (
   state: IDefaultWorkerState,
   action: { type: string; data: any },
 ) => {
+  // console.log(action.type);
   const updatedState = { ...state };
   if (action.type === 'WORKER_LOADED_TRUE') {
     updatedState.isLoaded = true;
@@ -203,6 +204,7 @@ const workerStateReducer = (
   } else if (action.type === 'ERROR') {
     updatedState.error = action.data;
   }
+  // console.log('returning state: ', updatedState);
   return updatedState;
 };
 
@@ -520,29 +522,34 @@ const useDCPWorker = ({
       setWorkerOptionsState,
     ],
   );
-
+  // debugger;
   if (!workerOptions) {
     // if worker in state is loaded, pass options reference from supervisor
     if (workerState.isLoaded && worker !== null) {
       workerOptions = worker.supervisorOptions;
     } else {
-      // useLocalStorage will overide options.workerOptions
-      if (userWorkerOptions && useLocalStorage) workerOptions = loadWorkerOptions();
+      // we can trust global config 
+      workerOptions = window.dcpConfig.worker;
 
-      // if workerOptions doesn't yet exist in localStorage (first time running) || don't use localStorage
-      // use a default workerConfig overritten with user passed options.workerOptions
-      if (workerOptions === null || !useLocalStorage) {
-        workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
-        if (userWorkerOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
-          userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress.address);
-        else if (typeof userWorkerOptions.paymentAddress === 'string')
-          userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress)
-        workerOptions.computeGroups = [];
-        applyWorkerOptions(userWorkerOptions);
-      }
+      if (userWorkerOptions)
+        applyWorkerOptions(userWorkerOptions); // apply user passed options
+      
+      // useLocalStorage props will be applied onto workerOptions
+      let userOptions = null;
+      if (useLocalStorage) userOptions = loadWorkerOptions();
+
+      if (userOptions !== null)
+        applyWorkerOptions(userOptions);
+      
+      // ensure that paymentAddress is of type dcp.wallet.Address
+      if (workerOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
+        workerOptions.paymentAddress = new window.dcp.wallet.Address(workerOptions.paymentAddress.address);
+      else if (typeof userWorkerOptions.paymentAddress === 'string')
+        workerOptions.paymentAddress = new window.dcp.wallet.Address(workerOptions.paymentAddress);
     }
   }
 
+  // console.log('A: ', workerOptions);
   // Worker Initialization
   useEffect(() => {
     async function initializeWorker() {
@@ -568,6 +575,8 @@ const useDCPWorker = ({
       try {
         delete workerOptions.shouldStopWorkingImmediately;
         dcpWorker = new window.dcp.worker.Worker(workerId, workerOptions);
+        // console.log('B: ', dcpWorker);
+        // debugger
         dispatchWorkerState({ type: 'WORKER_LOADED_TRUE' });
         setWorkerOptionsState(workerOptions);
       } catch (error) {
