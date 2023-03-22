@@ -622,10 +622,10 @@ const useDCPWorker = ({
         });
       });
       dcpWorker.on('fetchStart', () => {
-        dispatchWorkerState({ type: 'FETCHING_TRUE ' });
+        dispatchWorkerState({ type: 'FETCHING_TRUE' });
       });
       dcpWorker.on('fetchEnd', () => {
-        dispatchWorkerState({ type: 'FETCHING_FALSE ' });
+        dispatchWorkerState({ type: 'FETCHING_FALSE' });
       });
       dcpWorker.on('fetchError', (error: Error) => {
         dispatchWorkerState({ type: 'ERROR', data: error });
