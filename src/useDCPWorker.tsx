@@ -434,12 +434,12 @@ const useDCPWorker = ({
       dispatchWorkerState({ type: 'WILL_WORK_TRUE' });
       worker.start().catch((error: any) => {
         console.error(
-          `useDCPWorker(): starting the worker threw an unexpected error:`,
+          `use-dcp-worker: starting the worker threw an unexpected error:`,
           error,
         );
         return error;
       });
-    } else console.warn('useDCPWorker(): worker is not loaded.');
+    } else console.warn('use-dcp-worker: worker is not loaded.');
   }
 
   function stopWorker() {
@@ -449,14 +449,14 @@ const useDCPWorker = ({
         .stop(workerOptions.shouldStopWorkingImmediately ?? false)
         .catch((error: any) => {
           console.error(
-            `useDCPWorker(): stopping the worker threw an unexpected error:`,
+            `use-dcp-worker: stopping the worker threw an unexpected error:`,
             error,
           );
           return error;
         });
     } else {
       console.error(
-        "useDCPWorker(): failed to stop worker, worker isn't loaded or is null",
+        "use-dcp-worker: failed to stop worker, worker isn't loaded or is null.",
       );
     }
   }
@@ -489,14 +489,17 @@ const useDCPWorker = ({
   }, []);
 
   /**
-   *  Saves the current workerOptions configuration under their email address in
+   *  Saves the current maxWorkingSandboxes and paymentAddress configuration under worker-options in
    *  their local storage to be loaded when they sign in next time.
    */
   const saveWorkerOptions = useCallback(() => {
     const storageItem = window.localStorage.getItem('worker-options');
     const storage = storageItem !== null ? JSON.parse(storageItem) : {};
     // Save the worker options indexed by the user's Identity
-    storage[getWorkerOptionsKey()] = workerOptions;
+    storage[getWorkerOptionsKey()] = {
+      maxWorkingSandboxes: workerOptions.maxWorkingSandboxes,
+      paymentAddress: workerOptions.paymentAddress
+    };
     localStorage.setItem('worker-options', JSON.stringify(storage));
   }, []);
 
@@ -522,23 +525,33 @@ const useDCPWorker = ({
   );
 
   if (!workerOptions) {
-    // if worker in state is loaded, pass options reference from supervisor
+    // if worker in loaded state, pass options reference from supervisor
     if (workerState.isLoaded && worker !== null) {
       workerOptions = worker.supervisorOptions;
     } else {
-      // useLocalStorage will overide options.workerOptions
-      if (userWorkerOptions && useLocalStorage) workerOptions = loadWorkerOptions();
+      // we can trust global config 
+      workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
 
-      // if workerOptions doesn't yet exist in localStorage (first time running) || don't use localStorage
-      // use a default workerConfig overritten with user passed options.workerOptions
-      if (workerOptions === null || !useLocalStorage) {
-        workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
-        if (userWorkerOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
-          userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress.address);
+      if (userWorkerOptions)
+        applyWorkerOptions(userWorkerOptions); // apply user passed options
+      
+      let userOptions = null;
+      if (useLocalStorage) userOptions = loadWorkerOptions();
+
+      if (userOptions !== null)
+        applyWorkerOptions(userOptions); // paymentAddress and maxWorkingSandboxes from localStorage applied onto workerOptions
+      
+      // ensure that paymentAddress is of type dcp.wallet.Address
+      try
+      {
+        if (workerOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
+          workerOptions.paymentAddress = new window.dcp.wallet.Address(workerOptions.paymentAddress.address);
         else if (typeof userWorkerOptions.paymentAddress === 'string')
-          userWorkerOptions.paymentAddress = new window.dcp.wallet.Address(userWorkerOptions.paymentAddress)
-        workerOptions.computeGroups = [];
-        applyWorkerOptions(userWorkerOptions);
+          workerOptions.paymentAddress = new window.dcp.wallet.Address(workerOptions.paymentAddress);
+      }
+      catch (error)
+      {
+        console.error(`use-dcp-worker: Invalid type of paymentAddress supplied for worker options.`, error);
       }
     }
   }
@@ -547,7 +560,7 @@ const useDCPWorker = ({
   useEffect(() => {
     async function initializeWorker() {
       if (!window.dcp) {
-        console.error('useDCPWorker(): Missing dcp-client dependency. ');
+        console.error('use-dcp-worker: Missing dcp-client dependency. ');
         return;
       }
 
@@ -555,7 +568,7 @@ const useDCPWorker = ({
         !Object.prototype.hasOwnProperty.call(workerOptions, 'paymentAddress')
       ) {
         console.error(
-          'useDCPWorker(): workerOptions must contain a paymentAddress.',
+          'use-dcp-worker: workerOptions must contain a paymentAddress.',
         );
         return;
       }
@@ -572,7 +585,7 @@ const useDCPWorker = ({
         setWorkerOptionsState(workerOptions);
       } catch (error) {
         console.error(
-          'useDCPWorker(): something went wrong in the wallet.Worker constructor.',
+          'use-dcp-worker: something went wrong in the wallet.Worker constructor.',
           error,
         );
         return error;
@@ -625,7 +638,10 @@ const useDCPWorker = ({
         dispatchWorkerState({ type: 'FETCHING_TRUE' });
       });
       dcpWorker.on('fetchEnd', () => {
-        dispatchWorkerState({ type: 'FETCHING_FALSE' });
+        // extra delay for cleaner UI visual updates between quick fetching states
+        setTimeout(() => {
+          dispatchWorkerState({ type: 'FETCHING_FALSE' });
+        }, 1000);
       });
       dcpWorker.on('fetchError', (error: Error) => {
         dispatchWorkerState({ type: 'ERROR', data: error });
