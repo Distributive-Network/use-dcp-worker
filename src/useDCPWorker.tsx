@@ -173,34 +173,48 @@ const defaultWorkerState: IDefaultWorkerState = {
   error: false,
 };
 
+enum WorkerStateActions {
+  WORKER_LOADED = 'WORKER_LOADED',
+  SET_WORKER_SBX = 'SET_WORKER_SANDBOXES',
+  FETCHING_TRUE = 'FETCHING_TRUE',
+  FETCHING_FALSE = 'FETCHING_FALSE',
+  SUBMIT_TRUE = 'SUBMIT_TRUE',
+  SUBMIT_FALSE = 'SUBMIT_FALSE',
+  WORKING_TRUE = 'WORKING_TRUE',
+  WORKING_FALSE = 'WORKING_FALSE',
+  WILL_WORK_TRUE = 'WILL_WORK_TRUE',
+  WILL_WORK_FALSE = 'WILL_WORK_FALSE',
+  ERROR = 'ERROR'
+}
+
 const workerStateReducer = (
   state: IDefaultWorkerState,
   action: { type: string; data: any },
 ) => {
   const updatedState = { ...state };
-  if (action.type === 'WORKER_LOADED_TRUE') {
+  if (action.type === WorkerStateActions.WORKER_LOADED) {
     updatedState.isLoaded = true;
-  } else if (action.type === 'SET_WORKING_SANDBOXES') {
+  } else if (action.type === WorkerStateActions.SET_WORKER_SBX) {
     updatedState.workingSandboxes = action.data;
-  } else if (action.type === 'FETCHING_TRUE') {
+  } else if (action.type === WorkerStateActions.FETCHING_TRUE) {
     updatedState.fetching = true;
-  } else if (action.type === 'FETCHING_FALSE') {
+  } else if (action.type === WorkerStateActions.FETCHING_FALSE) {
     updatedState.fetching = false;
-  } else if (action.type === 'SUBMITTING_TRUE') {
+  } else if (action.type === WorkerStateActions.SUBMIT_TRUE) {
     updatedState.submitting = true;
-  } else if (action.type === 'SUBMITTING_FALSE') {
+  } else if (action.type === WorkerStateActions.SUBMIT_FALSE) {
     updatedState.fetching = false;
-  } else if (action.type === 'WORKING_TRUE') {
+  } else if (action.type === WorkerStateActions.WORKING_TRUE) {
     updatedState.working = true;
     if (updatedState.willWork) updatedState.willWork = null;
-  } else if (action.type === 'WORKING_FALSE') {
+  } else if (action.type === WorkerStateActions.WORKING_FALSE) {
     updatedState.working = false;
     if (!updatedState.willWork) updatedState.willWork = null;
-  } else if (action.type === 'WILL_WORK_TRUE') {
+  } else if (action.type === WorkerStateActions.WILL_WORK_TRUE) {
     updatedState.willWork = true;
-  } else if (action.type === 'WILL_WORK_FALSE') {
+  } else if (action.type === WorkerStateActions.WILL_WORK_FALSE) {
     updatedState.willWork = false;
-  } else if (action.type === 'ERROR') {
+  } else if (action.type === WorkerStateActions.ERROR) {
     updatedState.error = action.data;
   }
   return updatedState;
@@ -230,17 +244,23 @@ const defaultWorkerStats: IDefaultWorkerStats = {
   options: { paymentAddress: null, maxWorkingSandboxes: 0 },
 };
 
+enum WorkerStatsActions {
+  ADD_COMPUTE_TIME = 'ADD_COMPUTE_TIME',
+  ADD_SLICE = 'ADD_SLICE',
+  ADD_CREDITS = 'ADD_CREDITS'
+}
+
 const workerStatsReducer = (
   state: IDefaultWorkerStats,
   action: { type: string; data: any },
 ) => {
   let updatedStats = { ...state };
 
-  if (action.type === 'INCREMENT_COMPUTE_TIME') {
+  if (action.type === WorkerStatsActions.ADD_COMPUTE_TIME) {
     updatedStats.computeTime += action.data;
-  } else if (action.type === 'INCREMENT_SLICES') {
+  } else if (action.type === WorkerStatsActions.ADD_SLICE) {
     updatedStats.slices++;
-  } else if (action.type === 'INCREMENT_CREDITS') {
+  } else if (action.type === WorkerStatsActions.ADD_CREDITS) {
     updatedStats.credits = updatedStats.credits.plus(action.data);
   }
 
@@ -431,7 +451,7 @@ const useDCPWorker = ({
 
   function startWorker() {
     if (workerState.isLoaded && worker !== null) {
-      dispatchWorkerState({ type: 'WILL_WORK_TRUE' });
+      dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_TRUE });
       worker.start().catch((error: any) => {
         console.error(
           `use-dcp-worker: starting the worker threw an unexpected error:`,
@@ -443,7 +463,7 @@ const useDCPWorker = ({
   }
 
   function stopWorker() {
-    dispatchWorkerState({ type: 'WILL_WORK_FALSE' });
+    dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_FALSE });
     if (workerState.isLoaded && worker !== null) {
       worker
         .stop(workerOptions.shouldStopWorkingImmediately ?? false)
@@ -535,11 +555,11 @@ const useDCPWorker = ({
       if (userWorkerOptions)
         applyWorkerOptions(userWorkerOptions); // apply user passed options
       
-      let userOptions = null;
-      if (useLocalStorage) userOptions = loadWorkerOptions();
+      let storageOptions = null;
+      if (useLocalStorage) storageOptions = loadWorkerOptions();
 
-      if (userOptions !== null)
-        applyWorkerOptions(userOptions); // paymentAddress and maxWorkingSandboxes from localStorage applied onto workerOptions
+      if (storageOptions !== null)
+        applyWorkerOptions(storageOptions); // paymentAddress and maxWorkingSandboxes from localStorage applied onto workerOptions
       
       // ensure that paymentAddress is of type dcp.wallet.Address
       try
@@ -553,6 +573,10 @@ const useDCPWorker = ({
       {
         console.error(`use-dcp-worker: Invalid type of paymentAddress supplied for worker options.`, error);
       }
+
+      // ensure computeGroups is array, {} by default from dcpConfig
+      if (!(workerOptions.computeGroups instanceof Array))
+        workerOptions.computeGroups = [];
     }
   }
 
@@ -581,7 +605,7 @@ const useDCPWorker = ({
       try {
         delete workerOptions.shouldStopWorkingImmediately;
         dcpWorker = new window.dcp.worker.Worker(workerId, workerOptions);
-        dispatchWorkerState({ type: 'WORKER_LOADED_TRUE' });
+        dispatchWorkerState({ type: WorkerStateActions.WORKER_LOADED });
         setWorkerOptionsState(workerOptions);
       } catch (error) {
         console.error(
@@ -594,54 +618,54 @@ const useDCPWorker = ({
       dcpWorker.on('sandbox', (sandbox: any) => {
         sandbox.on('slice', () => {
           dispatchWorkerState({
-            type: 'SET_WORKING_SANDBOXES',
+            type: WorkerStateActions.SET_WORKER_SBX,
             data: dcpWorker.workingSandboxes.length,
           });
         });
         sandbox.on('metrics', (_: any, measurements: any) => {
           dispatchWorkerStats({
-            type: 'INCREMENT_COMPUTE_TIME',
+            type: WorkerStatsActions.ADD_COMPUTE_TIME,
             data: measurements.elapsed, // seconds
           });
         });
       });
       dcpWorker.on('payment', (payment: number) => {
-        dispatchWorkerStats({ type: 'INCREMENT_SLICES' });
+        dispatchWorkerStats({ type: WorkerStatsActions.ADD_SLICE });
         dispatchWorkerStats({
-          type: 'INCREMENT_CREDITS',
+          type: WorkerStatsActions.ADD_CREDITS,
           data: payment,
         });
         dispatchWorkerState({
-          type: 'SET_WORKING_SANDBOXES',
+          type: WorkerStateActions.SET_WORKER_SBX,
           data: dcpWorker.workingSandboxes.length,
         });
       });
       dcpWorker.on('beforeFetch', () => {
-        dispatchWorkerState({ type: 'FETCHING_TRUE' });
+        dispatchWorkerState({ type: WorkerStateActions.FETCHING_TRUE });
       });
       dcpWorker.on('fetch', (payload: any) => {
         if (payload instanceof Error)
-          return dispatchWorkerState({ type: 'ERROR', data: payload });
+          return dispatchWorkerState({ type: WorkerStateActions.ERROR, data: payload });
 
         // extra delay for cleaner UI visual updates between quick fetching states
         setTimeout(() => {
-          dispatchWorkerState({ type: 'FETCHING_FALSE' });
+          dispatchWorkerState({ type: WorkerStateActions.FETCHING_FALSE });
         }, 1000);
       });
       dcpWorker.on('beforeReturn', () => {
-        dispatchWorkerState({ type: 'SUBMITTING_TRUE' });
+        dispatchWorkerState({ type: WorkerStateActions.SUBMIT_TRUE });
       });
       dcpWorker.on('result', (payload: any) => {
         if (payload instanceof Error)
-          return dispatchWorkerState({ type: 'ERROR', data: payload });
+          return dispatchWorkerState({ type: WorkerStateActions.ERROR, data: payload });
 
-        dispatchWorkerState({ type: 'SUBMITTING_FALSE' });
+        dispatchWorkerState({ type: WorkerStateActions.SUBMIT_FALSE });
       });
       dcpWorker.on('start', () => {
-        dispatchWorkerState({ type: 'WORKING_TRUE' });
+        dispatchWorkerState({ type: WorkerStateActions.WORKING_TRUE });
       });
       dcpWorker.on('stop', () => {
-        dispatchWorkerState({ type: 'WORKING_FALSE' });
+        dispatchWorkerState({ type: WorkerStateActions.WORKING_FALSE });
       });
 
       setWorker(dcpWorker);
