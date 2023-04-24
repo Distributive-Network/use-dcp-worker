@@ -4,7 +4,8 @@
  *
  *  @date       January 2023
  */
-import {
+import
+{
   useCallback,
   useContext,
   useEffect,
@@ -12,29 +13,35 @@ import {
   useState,
   createContext,
   EventHandler,
-} from 'react';
+}
+from 'react';
 import BigNumber from 'bignumber.js';
 
-declare global {
-  interface Window {
+declare global
+{
+  interface Window
+  {
     dcp: DCP;
     dcpConfig: any;
   }
 }
 
-declare interface DCP {
+declare interface DCP
+{
   wallet: Wallet;
   worker: {
     Worker: typeof Worker;
   };
 }
 
-declare interface Wallet {
+declare interface Wallet
+{
   Address: typeof Address;
   Keystore: typeof Keystore;
 }
 
-declare class Address {
+declare class Address
+{
   constructor(address: string | Address | undefined | null);
   address: string;
   toString(): string;
@@ -42,7 +49,8 @@ declare class Address {
   eq: (value: any) => boolean;
 }
 
-declare class Keystore {
+declare class Keystore
+{
   constructor(privateKey: any, passpharase: string | false);
   address: Address;
 
@@ -53,7 +61,8 @@ declare class Keystore {
   eq: (value: any) => boolean;
 }
 
-declare interface IWorkerOptions {
+declare interface IWorkerOptions
+{
   [key: string]: any;
   trustComputeGroupOrigins?: boolean;
   allowOrigins?: {
@@ -77,12 +86,14 @@ declare interface IWorkerOptions {
   shouldStopWorkingImmediately?: boolean;
 }
 
-declare class EventTarget<T> {
+declare class EventTarget<T>
+{
   on<E extends keyof T>(event: E, eventListener: T[E]): this;
   off<E extends keyof T>(event: E, eventListener: T[E]): this;
 }
 
-declare interface Receipt {
+declare interface Receipt
+{
   payment: string;
 }
 
@@ -92,7 +103,8 @@ declare type JobDetails = {
   name: string;
 };
 
-declare class Sandbox extends EventTarget<any> {
+declare class Sandbox extends EventTarget<any>
+{
   id: string;
 
   isWorking: boolean;
@@ -104,11 +116,13 @@ declare class Sandbox extends EventTarget<any> {
   progress: number;
 }
 
-declare interface SupervisorEvents {
+declare interface SupervisorEvents
+{
   sandboxStart: EventHandler<any>;
 }
 
-declare class Supervisor extends EventTarget<SupervisorEvents> {
+declare class Supervisor extends EventTarget<SupervisorEvents>
+{
   maxWorkingSandboxes: number;
 
   paymentAddress: Address;
@@ -127,7 +141,8 @@ declare interface WorkerEvents {
   payment: EventHandler<any>;
 }
 
-declare class Worker extends EventTarget<WorkerEvents> {
+declare class Worker extends EventTarget<WorkerEvents>
+{
   constructor(identity: Keystore, options: IWorkerOptions);
   start: () => Promise<void>;
 
@@ -154,7 +169,8 @@ let workerOptions: IWorkerOptions;
  *  @property {ServiceError?}   error            Set when an error has occured in the worker
  */
 
-interface IDefaultWorkerState {
+interface IDefaultWorkerState
+{
   isLoaded: boolean;
   workingSandboxes: number;
   working: boolean;
@@ -173,7 +189,8 @@ const defaultWorkerState: IDefaultWorkerState = {
   error: false,
 };
 
-enum WorkerStateActions {
+enum WorkerStateActions
+{
   WORKER_LOADED = 'WORKER_LOADED',
   SET_WORKER_SBX = 'SET_WORKER_SANDBOXES',
   FETCHING_TRUE = 'FETCHING_TRUE',
@@ -220,7 +237,8 @@ const workerStateReducer = (
   return updatedState;
 };
 
-interface IDefaultWorkerStats {
+interface IDefaultWorkerStats
+{
   slices: number;
   credits: BigNumber;
   computeTime: number;
@@ -244,7 +262,8 @@ const defaultWorkerStats: IDefaultWorkerStats = {
   options: { paymentAddress: null, maxWorkingSandboxes: 0 },
 };
 
-enum WorkerStatsActions {
+enum WorkerStatsActions
+{
   ADD_COMPUTE_TIME = 'ADD_COMPUTE_TIME',
   ADD_SLICE = 'ADD_SLICE',
   ADD_CREDITS = 'ADD_CREDITS'
@@ -293,7 +312,8 @@ const defaultWorkerOptions: IWorkerOptions = {
   evaluatorOptions: {},
 };
 
-declare interface IDefaultWorkerContext {
+declare interface IDefaultWorkerContext
+{
   worker: Worker | null;
   setWorker: Function;
   workerOptionsState: IWorkerOptions;
@@ -322,7 +342,8 @@ const WorkerContext = createContext(defaultWorkerContext);
  * since this is the scope in which the context is created. To enable the hook, components that wish to use it must wrapped
  * by WorkerProvider tags.
  */
-export const WorkerProvider = (props: any) => {
+export function WorkerProvider(props: any) 
+{
   const [workerState, dispatchWorkerState] = useReducer(
     workerStateReducer,
     defaultWorkerState,
@@ -350,7 +371,7 @@ export const WorkerProvider = (props: any) => {
       {props.children}
     </WorkerContext.Provider>
   );
-};
+}
 
 /**
  *  Get the key under which to save/load the workerOptions
@@ -361,7 +382,8 @@ export const WorkerProvider = (props: any) => {
  *
  *  @return {string}    Index into workerOptions storage
  */
-function getWorkerOptionsKey() {
+function getWorkerOptionsKey()
+{
   if (typeof sessionStorage !== 'undefined' && sessionStorage.identity)
     return sessionStorage.identity;
 
@@ -375,37 +397,40 @@ function getWorkerOptionsKey() {
  *
  *  @returns {WorkerOptions?} The worker options, or null if they weren't found.
  */
-function loadWorkerOptions() {
+function loadWorkerOptions()
+{
   let options = window.localStorage.getItem('worker-options');
   let storage = options === null ? {} : JSON.parse(options);
 
   let loadedOptions;
 
-  if (Object.prototype.hasOwnProperty.call(storage, getWorkerOptionsKey())) {
+  if (Object.prototype.hasOwnProperty.call(storage, getWorkerOptionsKey()))
+  {
     loadedOptions = storage[getWorkerOptionsKey()];
-  } else if (
-    Object.prototype.hasOwnProperty.call(storage, 'defaultMaxWorkers')
-  ) {
+  }
+  else if (Object.prototype.hasOwnProperty.call(storage, 'defaultMaxWorkers'))
+  {
     loadedOptions = storage;
   }
 
-  if (!loadedOptions) return null;
+  if (!loadedOptions)
+    return null;
 
-  if (
-    Object.prototype.hasOwnProperty.call(loadedOptions, 'paymentAddress')
-  ) {
-    if (loadedOptions.paymentAddress instanceof window.dcp.wallet.Keystore) {
+  if (Object.prototype.hasOwnProperty.call(loadedOptions, 'paymentAddress'))
+  {
+    if (loadedOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
+    {
       loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress.address);
     }
-    else if (!(loadedOptions.paymentAddress instanceof window.dcp.wallet.Address)) {
+    else if (!(loadedOptions.paymentAddress instanceof window.dcp.wallet.Address))
+    {
       loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress);
     }
   }
 
   // If the saved options have `defaultMaxWorkers`, change that to `defaultMaxSliceCount`
-  if (
-    Object.prototype.hasOwnProperty.call(loadedOptions, 'defaultMaxWorkers')
-  ) {
+  if (Object.prototype.hasOwnProperty.call(loadedOptions, 'defaultMaxWorkers'))
+  {
     loadedOptions.defaultMaxSliceCount = loadedOptions.defaultMaxWorkers;
     delete loadedOptions.defaultMaxWorkers;
   }
@@ -413,11 +438,13 @@ function loadWorkerOptions() {
   return loadedOptions;
 }
 
-interface IUseDCPWorkerParams {
+interface IUseDCPWorkerParams
+{
   identity?: any;
   useLocalStorage?: boolean;
   workerOptions: IWorkerOptions;
 }
+
 /**
  * This hook enables the use of a DCP web worker. A config object is accepted as a paremeter. This config object can have a
  * config.identity property which will be assigned as the worker's identity (must be of type dcp.wallet.Keystore). config.useLocalStorage
@@ -433,11 +460,13 @@ interface IUseDCPWorkerParams {
  *          stopWorker and togglerWorker. workerOptionsState is a readonly object that describes how the worker is currently
  *          configured. To mutate workerOptions, use setWorkerOptions.
  */
-const useDCPWorker = ({
-  identity = null,
-  useLocalStorage = true,
-  workerOptions: userWorkerOptions,
-}: IUseDCPWorkerParams) => {
+const useDCPWorker = (
+  {
+    identity = null,
+    useLocalStorage = true,
+    workerOptions: userWorkerOptions,
+  }: IUseDCPWorkerParams
+) => {
   const {
     worker,
     setWorker,
@@ -449,8 +478,10 @@ const useDCPWorker = ({
     dispatchWorkerStats,
   } = useContext(WorkerContext);
 
-  function startWorker() {
-    if (workerState.isLoaded && worker !== null) {
+  function startWorker()
+  {
+    if (workerState.isLoaded && worker !== null)
+    {
       dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_TRUE });
       worker.start().catch((error: any) => {
         console.error(
@@ -459,21 +490,24 @@ const useDCPWorker = ({
         );
         return error;
       });
-    } else console.warn('use-dcp-worker: worker is not loaded.');
+    }
+    else
+      console.warn('use-dcp-worker: worker is not loaded.');
   }
 
-  function stopWorker() {
+  function stopWorker()
+  {
     dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_FALSE });
-    if (workerState.isLoaded && worker !== null) {
-      worker
-        .stop(workerOptions.shouldStopWorkingImmediately ?? false)
-        .catch((error: any) => {
-          console.error(
-            `use-dcp-worker: stopping the worker threw an unexpected error:`,
-            error,
-          );
-          return error;
-        });
+    if (workerState.isLoaded && worker !== null)
+    {
+      worker.stop(workerOptions.shouldStopWorkingImmediately ?? false)
+            .catch((error: any) => {
+              console.error(
+                `use-dcp-worker: stopping the worker threw an unexpected error:`,
+                error,
+              );
+              return error;
+            });
     } else {
       console.error(
         "use-dcp-worker: failed to stop worker, worker isn't loaded or is null.",
@@ -481,9 +515,12 @@ const useDCPWorker = ({
     }
   }
 
-  function toggleWorker() {
-    if (workerState.working) stopWorker();
-    else startWorker();
+  function toggleWorker()
+  {
+    if (workerState.working)
+      stopWorker();
+    else
+      startWorker();
   }
 
   /**
@@ -496,7 +533,8 @@ const useDCPWorker = ({
    *  @return {WorkerOptions}               WorkerOptions as applied
    */
   const applyWorkerOptions = useCallback((newWorkerOptions: IWorkerOptions) => {
-    if (!newWorkerOptions) return null;
+    if (!newWorkerOptions)
+      return null;
     for (const prop in newWorkerOptions)
     {
       if (prop === 'paymentAddress')
@@ -528,27 +566,29 @@ const useDCPWorker = ({
    * which correctly mutates the workerOptions referenced in the worker. Depending if local storage
    * is enabled, changes are saved to local storage. The readonly wokerOptionsSate is updated accordingly as well.
    */
-  const setWorkerOptions = useCallback(
-    (newWorkerOptions: IWorkerOptions) => {
+  const setWorkerOptions = useCallback((newWorkerOptions: IWorkerOptions) => {
       applyWorkerOptions(newWorkerOptions);
 
-      if (useLocalStorage) saveWorkerOptions();
+      if (useLocalStorage)
+        saveWorkerOptions();
 
       setWorkerOptionsState({ ...workerOptions });
-    },
-    [
+    }, [
       applyWorkerOptions,
       useLocalStorage,
       saveWorkerOptions,
       setWorkerOptionsState,
-    ],
-  );
+    ]);
 
-  if (!workerOptions) {
+  if (!workerOptions)
+  {
     // if worker in loaded state, pass options reference from supervisor
-    if (workerState.isLoaded && worker !== null) {
+    if (workerState.isLoaded && worker !== null)
+    {
       workerOptions = worker.supervisorOptions;
-    } else {
+    }
+    else
+    {
       // we can trust global config 
       workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
 
@@ -582,15 +622,16 @@ const useDCPWorker = ({
 
   // Worker Initialization
   useEffect(() => {
-    async function initializeWorker() {
-      if (!window.dcp) {
+    async function initializeWorker()
+    {
+      if (!window.dcp)
+      {
         console.error('use-dcp-worker: Missing dcp-client dependency. ');
         return;
       }
 
-      if (
-        !Object.prototype.hasOwnProperty.call(workerOptions, 'paymentAddress')
-      ) {
+      if (!Object.prototype.hasOwnProperty.call(workerOptions, 'paymentAddress'))
+      {
         console.error(
           'use-dcp-worker: workerOptions must contain a paymentAddress.',
         );
@@ -602,18 +643,22 @@ const useDCPWorker = ({
         workerId = await new window.dcp.wallet.Keystore(null, false);
 
       let dcpWorker: any;
-      try {
+      try
+      {
         delete workerOptions.shouldStopWorkingImmediately;
         dcpWorker = new window.dcp.worker.Worker(workerId, workerOptions);
         dispatchWorkerState({ type: WorkerStateActions.WORKER_LOADED });
         setWorkerOptionsState(workerOptions);
-      } catch (error) {
+      }
+      catch (error)
+      {
         console.error(
           'use-dcp-worker: something went wrong in the wallet.Worker constructor.',
           error,
         );
         return error;
       }
+
       // Attach listeners
       dcpWorker.on('sandbox', (sandbox: any) => {
         sandbox.on('slice', () => {
@@ -670,9 +715,9 @@ const useDCPWorker = ({
 
       setWorker(dcpWorker);
     }
-    if (worker === null) {
+
+    if (worker === null)
       initializeWorker();
-    }
 
     return () => {
       // might need to unhook dcpWorker listeners
