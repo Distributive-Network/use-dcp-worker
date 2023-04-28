@@ -141,6 +141,15 @@ declare interface WorkerEvents {
   payment: EventHandler<any>;
 }
 
+declare class OriginAccessManager
+{
+  getAllowList: (purpose: string, key: string|null) => Array<string>;
+  isAllowed: (origin: string, purpose: string, key: string|null) => boolean;
+  add: (origin: string, purpose: string|null, key: string|null) => void;
+  remove: (origin: string, purpose: string|null, key: string|null) => void;
+  remove_byKey: (key: string) => void;
+}
+
 declare class Worker extends EventTarget<WorkerEvents>
 {
   constructor(identity: Keystore, options: IWorkerOptions);
@@ -151,6 +160,8 @@ declare class Worker extends EventTarget<WorkerEvents>
   supervisorOptions: any;
 
   workingSandboxes:  Array<any>;
+
+  originManager: OriginAccessManager;
 }
 
 let workerOptions: IWorkerOptions;
@@ -740,6 +751,7 @@ const useDCPWorker = (
     toggleWorker,
     workerOptionsState,
     sandboxes: worker ? worker.workingSandboxes : [],
+    originManager: worker ? worker.originManager : undefined,
   };
 };
 
