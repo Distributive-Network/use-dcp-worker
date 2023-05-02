@@ -410,8 +410,8 @@ function getWorkerOptionsKey()
  */
 function loadWorkerOptions()
 {
-  let options = window.localStorage.getItem('worker-options');
-  let storage = options === null ? {} : JSON.parse(options);
+  const options = window.localStorage.getItem('dcp-worker-options');
+  const storage = options === null ? {} : JSON.parse(options);
 
   let loadedOptions;
 
@@ -558,18 +558,18 @@ const useDCPWorker = (
   }, []);
 
   /**
-   *  Saves the current maxWorkingSandboxes and paymentAddress configuration under worker-options in
+   *  Saves the current maxWorkingSandboxes and paymentAddress configuration under dcp-worker-options in
    *  their local storage to be loaded when they sign in next time.
    */
   const saveWorkerOptions = useCallback(() => {
-    const storageItem = window.localStorage.getItem('worker-options');
+    const storageItem = window.localStorage.getItem('dcp-worker-options');
     const storage = storageItem !== null ? JSON.parse(storageItem) : {};
     // Save the worker options indexed by the user's Identity
     storage[getWorkerOptionsKey()] = {
       maxWorkingSandboxes: workerOptions.maxWorkingSandboxes,
       paymentAddress: workerOptions.paymentAddress
     };
-    localStorage.setItem('worker-options', JSON.stringify(storage));
+    localStorage.setItem('dcp-worker-options', JSON.stringify(storage));
   }, []);
 
   /**
