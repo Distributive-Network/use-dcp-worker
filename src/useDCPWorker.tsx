@@ -619,10 +619,10 @@ const useDCPWorker = ({
         };
 
         sandbox.on('start', onStart);
-        sandbox.on('sliceFinish', onFinish);
+        sandbox.on('sliceEnd', onFinish);
         sandbox.on('terminate', () => {
           sandbox.off('start', onStart);
-          sandbox.off('sliceFinish', onFinish);
+          sandbox.off('sliceEnd', onFinish);
         });
       });
       dcpWorker.on('submit', () => {
