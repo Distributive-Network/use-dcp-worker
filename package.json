@@ -2,6 +2,24 @@
   "name": "use-dcp-worker",
   "version": "1.0.2",
   "description": "Embed the DCP Worker in a React app",
+  "keywords": [
+    "dcp",
+    "dcp-worker",
+    "react"
+  ],
+  "homepage": "https://github.com/Distributive-Network/useDCPWorker#readme",
+  "bugs": {
+    "url": "https://github.com/Distributive-Network/useDCPWorker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Distributive-Network/useDCPWorker.git"
+  },
+  "license": "ISC",
+  "author": "Kirill Kirnichansky <kirill@distributive.network>",
+  "contributors": [
+    "Robert Mirandola <robert@distributive.network>"
+  ],
   "main": "lib/useDCPWorker.js",
   "directories": {
     "lib": "lib/"
@@ -15,24 +33,9 @@
     "clean": "tsc --build --clean",
     "prepare": "npm run build"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Distributive-Network/useDCPWorker.git"
+  "dependencies": {
+    "bignumber.js": "^9.1.1"
   },
-  "keywords": [
-    "dcp",
-    "dcp-worker",
-    "react"
-  ],
-  "author": "Robert Mirandola <robert@distributive.network>",
-  "contributors": [
-    "Kirill Kirnichansky <kirill@kingsds.network>"
-  ],
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Distributive-Network/useDCPWorker/issues"
-  },
-  "homepage": "https://github.com/Distributive-Network/useDCPWorker#readme",
   "devDependencies": {
     "@types/react": "^18.0.28",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
@@ -40,8 +43,5 @@
     "eslint": "^8.35.0",
     "eslint-plugin-react": "^7.32.2",
     "typescript": "^4.9.5"
-  },
-  "dependencies": {
-    "bignumber.js": "^9.1.1"
   }
 }
