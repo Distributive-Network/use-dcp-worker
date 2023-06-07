@@ -7,15 +7,15 @@
     "dcp-worker",
     "react"
   ],
-  "homepage": "https://github.com/Distributive-Network/useDCPWorker#readme",
+  "homepage": "https://github.com/Distributive-Network/use-dcp-worker#readme",
   "bugs": {
-    "url": "https://github.com/Distributive-Network/useDCPWorker/issues"
+    "url": "https://github.com/Distributive-Network/use-dcp-worker/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Distributive-Network/useDCPWorker.git"
+    "url": "git+https://github.com/Distributive-Network/use-dcp-worker.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "author": "Kirill Kirnichansky <kirill@distributive.network>",
   "contributors": [
     "Robert Mirandola <robert@distributive.network>"
