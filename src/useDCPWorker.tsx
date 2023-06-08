@@ -201,7 +201,7 @@ const defaultWorkerState: IDefaultWorkerState = {
   error: false,
 };
 
-let hasStartedWorkerInit = false;
+let hasStartedWorkerInit = false, optionsError = false;
 
 enum WorkerStateActions
 {
@@ -268,10 +268,6 @@ interface IDefaultWorkerStats
   slices: number;
   credits: BigNumber;
   computeTime: number;
-  options: {
-    paymentAddress: string | null;
-    maxWorkingSandboxes: number;
-  };
 }
 /**
  *  Stores the global tallies of slices completed, credits earned, and time computed
@@ -285,7 +281,6 @@ const defaultWorkerStats: IDefaultWorkerStats = {
   slices: 0,
   credits: new BigNumber(0),
   computeTime: 0,
-  options: { paymentAddress: null, maxWorkingSandboxes: 0 },
 };
 
 enum WorkerStatsActions
@@ -507,6 +502,7 @@ const useDCPWorker = (
     if (!Object.prototype.hasOwnProperty.call(workerOptions, 'paymentAddress'))
     {
       console.error('use-dcp-worker: workerOptions must contain a paymentAddress.');
+      optionsError = true;
       return;
     }
 
@@ -520,6 +516,7 @@ const useDCPWorker = (
     catch (error)
     {
       console.error(`use-dcp-worker: Invalid type of paymentAddress supplied for worker options.`, error);
+      optionsError = true;
     }
   }, []);
 
@@ -531,7 +528,7 @@ const useDCPWorker = (
    */
   const applyWorkerOptions = useCallback((newWorkerOptions: IWorkerOptions) => {
     if (!newWorkerOptions)
-      return null;
+      return;
     for (const prop in newWorkerOptions)
       workerOptions[prop] = newWorkerOptions[prop];
   }, []);
@@ -552,7 +549,7 @@ const useDCPWorker = (
 
     if (storageOptions)
       applyWorkerOptions(storageOptions); // paymentAddress and maxWorkingSandboxes from localStorage applied onto workerOptions
-  }, []);
+  }, [userWorkerOptions]);
 
   /**
    *  If local storage is enabled:
@@ -586,7 +583,8 @@ const useDCPWorker = (
    *  workerOptions object returned. in the case local storage is enabled, properties.
    */
   const constructWorkerOptions = useCallback(() => {
-    if (!workerOptions)
+    // if optionsError -> an error happened in previous execution of this method, therefore, we can retry
+    if (!workerOptions || optionsError)
     {
       // if worker in loaded state, pass options reference from supervisor
       if (worker)
@@ -598,6 +596,7 @@ const useDCPWorker = (
         // we can trust dcpConfig 
         workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
 
+        optionsError = false;
         applyUserOptions();
         ensurePaymentAddressType();
 
@@ -634,7 +633,7 @@ const useDCPWorker = (
         workerOptions = workerOptionsProxy;
       }
     }
-  }, []);
+  }, [userWorkerOptions]);
 
   // Ensure window.dcp -> dcp-client library loaded
   if (!window.dcp)
@@ -650,8 +649,8 @@ const useDCPWorker = (
   useEffect(() => {
     async function initializeWorker()
     {
-      // to prevent race condition if hook is called multiple times
-      if (hasStartedWorkerInit)
+      // prevents race condition if hook is called multiple times || options error
+      if (hasStartedWorkerInit || optionsError)
         return;
       hasStartedWorkerInit = true;
 
@@ -725,13 +724,7 @@ const useDCPWorker = (
     return () => {
       // might need to unhook dcpWorker listeners
     };
-  }, [
-    identity,
-    worker,
-    setWorker,
-    dispatchWorkerState,
-    dispatchWorkerStats,
-  ]);
+  });
 
   return {
     worker,
