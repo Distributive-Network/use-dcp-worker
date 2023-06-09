@@ -509,13 +509,13 @@ const useDCPWorker = (
     try
     {
       if (workerOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
-        workerOptions.paymentAddress = new window.dcp.wallet.Address(workerOptions.paymentAddress.address);
-      else if (typeof workerOptions.paymentAddress === 'string')
+        workerOptions.paymentAddress = workerOptions.paymentAddress.address;
+      else if (!(workerOptions.paymentAddress instanceof window.dcp.wallet.Address))
         workerOptions.paymentAddress = new window.dcp.wallet.Address(workerOptions.paymentAddress);
     }
     catch (error)
     {
-      console.error(`use-dcp-worker: Invalid type of paymentAddress supplied for worker options.`, error);
+      console.error(`use-dcp-worker: Invalid type (${typeof workerOptions.paymentAddress}) of paymentAddress supplied for worker options.`, error);
       optionsError = true;
     }
   }, []);
