@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import useDCPWorker from 'use-dcp-worker';
 
-const bankAddress = process.env.REACT_APP_BANK_ACCOUNT_ADDRESS;
+const paymentAddress = process.env.REACT_APP_WORKER_PAYMENT_ADDRESS;
 
 function App() {
-  const [workerPaymentAddress, setWorkerPaymentAddress] = useState(bankAddress);
+  const [workerPaymentAddress, setWorkerPaymentAddress] = useState(paymentAddress);
   const { compute, wallet } = window.dcp;
 
   // triggers client modal and sets workerPaymentAddress
@@ -29,17 +29,18 @@ function App() {
     getPaymentAddress();
 
   // use use-dcp-worker hook
-  const { 
-    worker, 
-    workerState, 
-    workerStatistics 
-  } = useDCPWorker({
+  const config = {
     workerOptions: { 
       paymentAddress: workerPaymentAddress,
       leavePublicGroup: true, // to ensure worker does NOT work on public jobs
     },
     useLocalStorage: false,
-  });
+  };
+  const { 
+    worker, 
+    workerState, 
+    workerStatistics 
+  } = useDCPWorker(config);
 
   // get workerLog to attachListeners
   const workerLog = document.getElementById('worker-log');
