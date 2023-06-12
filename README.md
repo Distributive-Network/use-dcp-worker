@@ -66,6 +66,7 @@ The hook accepts a single object with the following parameters:
     - `in: number = 0`
     - `out: number = 0`
   - `computeGroups?: []`: List of compute groups the worker is in and the authorization to join them. A compute group is to be described as `{ joinKey: 'exampleGroup', joinSecret: 'password' }`.
+  - `leavePublicGroup?: boolean = false`: A flag that controls if the worker should omit fetching work from the public compute group. If not defined, this flag is evaluated to _false_.
   - `jobAddresses?: []`: If populated, worker will only fetch slices from jobs corresponding to the job addresses in this list.
   - `maxWorkingSandboxes?: integer | undefined`: Maximum number of sandboxes allowed to do work. If `undefined`, then the Supervisor will determine a safe limit, based off of machine hardware.
   - `paymentAddress: Keystore | Address | String`: A Keystore, Address (`dcp.wallet.Address`) or string identifying a DCP Bank Account to deposit earned DCCs.
@@ -77,7 +78,7 @@ Note: Learn more about `Keystore` and `Address` in our [Wallet API documentation
 This hook returns an object with the following properties:
 - `worker: Worker`: Refer to the [Worker API documentation](https://docs.dcp.dev/specs/worker-api.html).
 - `workerOptions: Proxy`: This is the options Proxy object passed to the worker constructor. Editing `workerOptions` is as simple as mutating this object. `paymentAddress` and `maxWorkingSandboxes` are saved to local storage (if enabled) and a component update/re-render is triggered when either property is mutated. Refer to `workerOptions` in Parameters to learn more about all properties on this Proxy object.
-- `workerState: object`: Stores status of worker states.
+- `workerState: object`: Stores status of worker states. Stored globally and preseved between component updates.
   - `isLoaded: boolean`: True once the worker is properly initialized.
   - `working: boolean`: True if the worker is doing work, false otherwise.
   - `willWork: boolean`: True when the worker is starting to do work, false when the worker is stopping.
@@ -85,12 +86,15 @@ This hook returns an object with the following properties:
   - `submitting: boolean`: True when the worker is submitting results to the scheduler, false otherwise.
   - `error: Error | boolean`: Set when a worker error has occured, false otherwise.
   - `workingSandboxes: integer`: Number of sandboxes currently doing work.
-- `workerStatistics: object`: Stores a global count of worker statistics for a browser session.
+- `workerStatistics: object`: Stores a global count of worker statistics for a browser session. Stored globally and preseved between component updates.
   - `slices: number`: Number of slices completed.
   - `credits: BigNumber`: Total credits earned.
   - `computeTime: number`: Total time computed (ms).
 
 Note: Learn more about `Sandbox` in our [Sandbox API](https://docs.dcp.dev/specs/worker-api.html#sandbox-api) & [Compute API](https://docs.dcp.dev/specs/compute-api.html#definitions) docs.
+## How it works
+
+The Worker requires an options object for configuration. This hook passes in `dcpConfig.worker` defined in the global scope, with options passed to the hook and those saved in local storage overwritten on top, straight to the constructor. The hook was written to handle multiple insances of the hook defined in a React application, ensuring a single instance of a Worker is used/instanciated (including between component updates) - achieved using React state management. Once a Worker is instantiated, it is in a global context state that all instances of the hook will reference. The state and statistics the hook provides, `workerState` and `workerStatistics`, is also handled in a global React state context. Custom handling of state and statistics can always be achieved using the `worker` returned with an understanding of the Worker API and Worker events.
 
 ## Managing Origins
 
