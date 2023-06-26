@@ -39,7 +39,6 @@ import useDCPWorker from 'use-dcp-worker';
 function Worker() {
   const { 
       worker,
-      workerOptions,
       workerState,
       workerStatistics,
     } = useDCPWorker({
@@ -77,7 +76,6 @@ Note: Learn more about `Keystore` and `Address` in our [Wallet API documentation
 ## Returns
 This hook returns an object with the following properties:
 - `worker: Worker`: Refer to the [Worker API documentation](https://docs.dcp.dev/specs/worker-api.html).
-- `workerOptions: Proxy`: This is the options Proxy object passed to the worker constructor. Editing `workerOptions` is as simple as mutating this object. `paymentAddress` and `maxWorkingSandboxes` are saved to local storage (if enabled) and a component update/re-render is triggered when either property is mutated. Refer to `workerOptions` in Parameters to learn more about all properties on this Proxy object.
 - `workerState: object`: Stores status of worker states. Stored globally and preseved between component updates.
   - `isLoaded: boolean`: True once the worker is properly initialized.
   - `working: boolean`: True if the worker is doing work, false otherwise.
@@ -95,6 +93,11 @@ Note: Learn more about `Sandbox` in our [Sandbox API](https://docs.dcp.dev/specs
 ## How it works
 
 The Worker requires an options object for configuration. This hook passes in `dcpConfig.worker` defined in the global scope, with options passed to the hook and those saved in local storage overwritten on top, straight to the constructor. The hook was written to handle multiple insances of the hook defined in a React application, ensuring a single instance of a Worker is used/instanciated (including between component updates) - achieved using React state management. Once a Worker is instantiated, it is in a global context state that all instances of the hook will reference. The state and statistics the hook provides, `workerState` and `workerStatistics`, is also handled in a global React state context. Custom handling of state and statistics can always be achieved using the `worker` returned with an understanding of the Worker API and Worker events.
+
+## Editing Worker Options
+As part of the [Worker API](https://docs.dcp.dev/specs/worker-api.html), the `worker` has a `workerOptions` property that describe the current active options configuring the worker, and mutating this object will modify worker options.
+
+__Note:__ To achieve desired React component updates regarding changes to certain options that may be featured in a UI, such as _paymentAddress_ - `worker.workerOptions` is a Proxy object with custom handling to handle component updates and writes to local storage.
 
 ## Managing Origins
 

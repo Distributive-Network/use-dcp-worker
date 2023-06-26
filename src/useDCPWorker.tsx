@@ -464,7 +464,6 @@ const useDCPWorker = (
    *  workerOptions object returned. in the case local storage is enabled, properties.
    */
   const constructWorkerOptions = useCallback(() => {
-    console.log('maintenance');
     // if optionsError -> an error happened in previous execution of this method, therefore, we can retry
     if (!workerOptions || optionsError)
     {
@@ -610,7 +609,6 @@ const useDCPWorker = (
 
   return {
     worker,
-    workerOptions,
     workerState,
     workerStatistics,
   };
