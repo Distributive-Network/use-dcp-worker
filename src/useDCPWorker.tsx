@@ -21,44 +21,9 @@ declare global
 {
   interface Window
   {
-    dcp: DCP;
+    dcp: any;
     dcpConfig: any;
   }
-}
-
-declare interface DCP
-{
-  wallet: Wallet;
-  worker: {
-    Worker: typeof Worker;
-  };
-}
-
-declare interface Wallet
-{
-  Address: typeof Address;
-  Keystore: typeof Keystore;
-}
-
-declare class Address
-{
-  constructor(address: string | Address | undefined | null);
-  address: string;
-  toString(): string;
-
-  eq: (value: any) => boolean;
-}
-
-declare class Keystore
-{
-  constructor(privateKey: any, passpharase: string | false);
-  address: Address;
-
-  label: string;
-
-  toString(): string;
-
-  eq: (value: any) => boolean;
 }
 
 declare interface IWorkerOptions
@@ -81,92 +46,8 @@ declare interface IWorkerOptions
   computeGroups?: Array<any>;
   jobAddresses?: Array<string>;
   maxWorkingSandboxes?: number | undefined;
-  paymentAddress?: Address | string | null;
+  paymentAddress?: any;
   evaluatorOptions?: {};
-}
-
-declare class EventTarget<T>
-{
-  on<E extends keyof T>(event: E, eventListener: T[E]): this;
-  off<E extends keyof T>(event: E, eventListener: T[E]): this;
-}
-
-declare interface Receipt
-{
-  payment: string;
-}
-
-declare type JobDetails = {
-  description: string;
-  link: string;
-  name: string;
-};
-
-declare class Sandbox extends EventTarget<any>
-{
-  id: string;
-
-  isWorking: boolean;
-
-  public: JobDetails;
-
-  sliceStartTime: number;
-
-  progress: number;
-}
-
-declare interface SupervisorEvents
-{
-  sandboxStart: EventHandler<any>;
-}
-
-declare class Supervisor extends EventTarget<SupervisorEvents>
-{
-  maxWorkingSandboxes: number;
-
-  paymentAddress: Address;
-
-  options: IWorkerOptions;
-
-  allocatedSandboxes: Sandbox[];
-}
-
-declare interface WorkerEvents {
-  start: EventHandler<any>;
-  fetchStart: EventHandler<any>;
-  error: EventHandler<any>;
-  fetchEnd: EventHandler<any>;
-  stop: EventHandler<any>;
-  payment: EventHandler<any>;
-  sandbox: EventHandler<any>;
-  submit: EventHandler<any>;
-  fetchError: EventHandler<any>;
-  submitStart: EventHandler<any>;
-  submitEnd: EventHandler<any>;
-  submitError: EventHandler<any>;
-}
-
-declare class OriginAccessManager
-{
-  getAllowList: (purpose: string, key: string|null) => Array<string>;
-  isAllowed: (origin: string, purpose: string, key: string|null) => boolean;
-  add: (origin: string, purpose: string|null, key: string|null) => void;
-  remove: (origin: string, purpose: string|null, key: string|null) => void;
-  remove_byKey: (key: string) => void;
-}
-
-declare class Worker extends EventTarget<WorkerEvents>
-{
-  constructor(identity: Keystore, options: IWorkerOptions);
-  start: () => Promise<void>;
-
-  stop: (shouldstopImmediately: boolean) => Promise<void>;
-
-  supervisorOptions: any;
-
-  workingSandboxes:  Array<any>;
-
-  originManager: OriginAccessManager;
 }
 
 let workerOptions: IWorkerOptions;
@@ -335,7 +216,7 @@ const defaultWorkerOptions: IWorkerOptions = {
 
 declare interface IDefaultWorkerContext
 {
-  worker: Worker | undefined;
+  worker: any;
   setWorker: Function;
   workerState: IDefaultWorkerState;
   workerStatistics: IDefaultWorkerStats;
@@ -583,6 +464,7 @@ const useDCPWorker = (
    *  workerOptions object returned. in the case local storage is enabled, properties.
    */
   const constructWorkerOptions = useCallback(() => {
+    console.log('maintenance');
     // if optionsError -> an error happened in previous execution of this method, therefore, we can retry
     if (!workerOptions || optionsError)
     {
