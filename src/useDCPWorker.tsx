@@ -298,11 +298,11 @@ function loadWorkerOptions()
 
   let loadedOptions;
 
-  if (Object.prototype.hasOwnProperty.call(storage, getWorkerOptionsKey()))
+  if (Object.hasOwn(storage, getWorkerOptionsKey()))
   {
     loadedOptions = storage[getWorkerOptionsKey()];
   }
-  else if (Object.prototype.hasOwnProperty.call(storage, 'defaultMaxWorkers'))
+  else if (Object.hasOwn(storage, 'defaultMaxWorkers'))
   {
     loadedOptions = storage;
   }
@@ -310,7 +310,7 @@ function loadWorkerOptions()
   if (!loadedOptions)
     return null;
 
-  if (Object.prototype.hasOwnProperty.call(loadedOptions, 'paymentAddress'))
+  if (Object.hasOwn(loadedOptions, 'paymentAddress'))
   {
     if (loadedOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
     {
@@ -323,7 +323,7 @@ function loadWorkerOptions()
   }
 
   // If the saved options have `defaultMaxWorkers`, change that to `defaultMaxSliceCount`
-  if (Object.prototype.hasOwnProperty.call(loadedOptions, 'defaultMaxWorkers'))
+  if (Object.hasOwn(loadedOptions, 'defaultMaxWorkers'))
   {
     loadedOptions.defaultMaxSliceCount = loadedOptions.defaultMaxWorkers;
     delete loadedOptions.defaultMaxWorkers;
@@ -380,7 +380,7 @@ const useDCPWorker = (
    *  @returns `true` if valid, `false` otherwise
    */
   const ensurePaymentAddressType = useCallback(() => {
-    if (!Object.prototype.hasOwnProperty.call(workerOptions, 'paymentAddress'))
+    if (!Object.hasOwn(workerOptions, 'paymentAddress'))
     {
       console.error('use-dcp-worker: workerOptions must contain a paymentAddress.');
       optionsError = true;
