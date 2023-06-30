@@ -45,6 +45,10 @@ declare interface IWorkerOptions
   };
   computeGroups?: Array<any>;
   jobAddresses?: Array<string>;
+  cores?: {
+    cpu?: number;
+    gpu?: number;
+  };
   maxWorkingSandboxes?: number | undefined;
   paymentAddress?: any;
   evaluatorOptions?: {};
@@ -416,7 +420,7 @@ const useDCPWorker = (
 
   /**
    *  Applies user specific options to workerOptions. First the options passed to the hook are applied,
-   *  followed by the options stored in local storage (paymentAddress & maxWorkingSandboxes) if enabled. 
+   *  followed by the options stored in local storage if enabled. 
    */
   const applyUserOptions = useCallback(() => {
     // apply user passed options
@@ -435,7 +439,7 @@ const useDCPWorker = (
   /**
    *  If local storage is enabled:
    * 
-   *  Saves the current maxWorkingSandboxes and paymentAddress configuration
+   *  Saves the current cores and paymentAddress configuration
    *  under dcp-worker-options in local storage to be loaded in next time.
    */
   const saveWorkerOptions = useCallback(() => {
@@ -445,8 +449,8 @@ const useDCPWorker = (
     const storage = storageItem !== null ? JSON.parse(storageItem) : {};
     // Save the worker options indexed by the user's Identity
     storage[getWorkerOptionsKey()] = {
-      maxWorkingSandboxes: workerOptions.maxWorkingSandboxes,
-      paymentAddress: workerOptions.paymentAddress
+      cores: workerOptions.cores,
+      paymentAddress: workerOptions.paymentAddress,
     };
     localStorage.setItem('dcp-worker-options', JSON.stringify(storage));
   }, []);
@@ -464,6 +468,7 @@ const useDCPWorker = (
    *  workerOptions object returned. in the case local storage is enabled, properties.
    */
   const constructWorkerOptions = useCallback(() => {
+    console.log('newsssss');
     // if optionsError -> an error happened in previous execution of this method, therefore, we can retry
     if (!workerOptions || optionsError)
     {
@@ -475,6 +480,7 @@ const useDCPWorker = (
       else
       {
         // we can trust dcpConfig 
+        debugger;
         workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
 
         optionsError = false;
@@ -486,23 +492,25 @@ const useDCPWorker = (
           workerOptions.computeGroups = [];
         
         /**
-         *  Set up proxy so that when paymentAddress or maxWorkingSandboxes is changed
+         *  Set up proxy so that when paymentAddress or cores is changed
          *  it is saved to localStorage and triggers re-render to components using this hook.
          */
+        const changeWatchList = ['paymentAddress', 'maxWorkingSandboxes', 'cores'];
         const workerOptionsHandler: ProxyHandler<any> = {
           get(target: any, property: string) {
             return target[property];
           },
           set(target: any, property: any, value: any)
           {
+            console.log('setting', property);
             target[property] = value;
-            if (property === 'paymentAddress' || property === 'maxWorkingSandboxes')
+            if (changeWatchList.includes(property))
             {
               if (property === 'paymentAddress')
                 ensurePaymentAddressType();
               saveWorkerOptions();
               /**
-               *  paymentAddress and maxWorkingSandbox are desired worker options that may
+               *  paymentAddress and cores are desired worker options that may
                *  feature UI components, therefore, we want to trigger a re-render
               */
               dispatchWorkerState({ type: WorkerStateActions.TRIGGER_RERENDER });
