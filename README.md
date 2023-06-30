@@ -51,9 +51,9 @@ function Worker() {
 The hook accepts a single object with the following parameters:
 - `identity?: Keystore`: A Keystore object (`dcp.wallet.Keystore`) which is passed to the Worker constructor and set as the Worker's identity when communicating over the network. If a Keystore is not provided, an arbitrary one will be generated.
 - `useLocalStorage?: boolean = true`:  A flag to toggle the use of the browser's local storage. The `workerOptions` object is the entity to be saved to local storage and is updated accordingly when calling `setWorkerOptions`.
-- `workerOptions: object`: The contents of this object will override the default values coming from the worker configuration coming from `dcpConfig`(provided by `dcp-client`, worker node sourced from `dcp-worker`). The only required property of the `workerOptions` object needed to provide is a `paymentAddress`. The following properties describe the worker options object configuring the DCP Worker.
+- `workerOptions: object`: The contents of this object will override the default values coming from the worker configuration coming from `dcpConfig`(provided by `dcp-client`, worker node sourced from `dcp-worker`). The only required property of `workerOptions` is `paymentAddress`. The following properties describe the worker options object configuring the DCP Worker:
   - `trustComputeGroupOrigins?: boolean = true`: Trust the scheduler to tell client about allowed origins for jobs in a compute group.
-  - `allowOrigins?: object`: Allow list permitting network access beyond DCP messages to services. This list is used only in setting up the DCP Worker. After the worker is constructed/loaded, the `originManager` is responsible for managing origins (see Managing Origins). Empty by default of course.
+  - `allowOrigins?: object`: Allow list permitting network access beyond DCP messages to services. This list is used only in setting up the DCP Worker. After the worker is constructed/loaded, the `originManager` is responsible for managing origins (see Managing Origins). It's empty by default.
     - `any: []`: A list of origins that are allowed to communicate with, for all purposes.
     - `fetchWorkFunctions: []`: A list of origins that are allowed to fetch the work function from.
     - `fetchArguments: []`: A list of origins that are allowed to fetch work function arguments from.
@@ -67,8 +67,8 @@ The hook accepts a single object with the following parameters:
   - `computeGroups?: []`: List of compute groups the worker is in and the authorization to join them. A compute group is to be described as `{ joinKey: 'exampleGroup', joinSecret: 'password' }`.
   - `leavePublicGroup?: boolean = false`: A flag that controls if the worker should omit fetching work from the public compute group. If not defined, this flag is evaluated to _false_.
   - `jobAddresses?: []`: If populated, worker will only fetch slices from jobs corresponding to the job addresses in this list.
-  - `maxWorkingSandboxes?: integer | undefined`: Maximum number of sandboxes allowed to do work. If `undefined`, then the Supervisor will determine a safe limit, based off of machine hardware.
-  - `paymentAddress: Keystore | Address | String`: A Keystore, Address (`dcp.wallet.Address`) or string identifying a DCP Bank Account to deposit earned DCCs.
+  - `maxWorkingSandboxes?: number | undefined`: Maximum number of sandboxes allowed to do work. If `undefined`, then the Supervisor will determine a safe limit, based off of machine hardware.
+  - `paymentAddress: Keystore | Address | string`: A Keystore, Address (`dcp.wallet.Address`) or string identifying a DCP Bank Account to deposit earned DCCs.
   - `shouldStopWorkerImmediately?: boolean`: If true, when the worker is called to stop, it will terminate all working sandboxes without waiting for them to finish. If false, the worker will wait for all sandboxes to finish computing before terminating.
 
 Note: Learn more about `Keystore` and `Address` in our [Wallet API documentation](https://docs.dcp.dev/specs/wallet-api.html).
@@ -83,7 +83,7 @@ This hook returns an object with the following properties:
   - `fetching: boolean`: True when the worker is fetching for slices to compute, false otherwise.
   - `submitting: boolean`: True when the worker is submitting results to the scheduler, false otherwise.
   - `error: Error | boolean`: Set when a worker error has occured, false otherwise.
-  - `workingSandboxes: integer`: Number of sandboxes currently doing work.
+  - `workingSandboxes: number`: Number of sandboxes currently doing work.
 - `workerStatistics: object`: Stores a global count of worker statistics for a browser session. Stored globally and preseved between component updates.
   - `slices: number`: Number of slices completed.
   - `credits: BigNumber`: Total credits earned.
@@ -121,16 +121,16 @@ Upon construction of the worker, the worker options `allowOrigins` property is r
   - workerOptions source always coming from dcpConfig
   - added delay between quick worker fetching states
   - Quality of life + maintainability improvements
-- __1.1.0__ - May
-  - now returning the worker itself and the workerOptions used to configure it
+- __2.0.0__ - May
+  - now returns the worker
   - proper handling of race-condition in constructing the worker when/if the hook is executed multiple times at once
-  - workerOptions passed to worker constructor and returned is a Proxy now
+  - workerOptions passed to worker constructor is a Proxy now
     - needed reflect changes to paymentAddress and maxWorkingSandbox props to local storage and trigger component update/re-render
   - removed workerState.isLoaded since now we are returning the worker
     - !isLoaded === !worker
   - removed workerOptionsState, start/stop/toggleWorker, sandboxes, originManager
-    - these are all API methods of the worker
-  - removed applyWorkerOptions since editing workerOptions should be done by directly mutating workerOptions
+    - these are all accessible via Worker API
+  - removed applyWorkerOptions since editing workerOptions should be done by directly mutating worker.workerOptions
   - improved error handling
   - quality of life improvements
 
