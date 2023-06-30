@@ -1,6 +1,6 @@
 {
   "name": "use-dcp-worker",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Embed the DCP Worker in a React app",
   "keywords": [
     "dcp",
