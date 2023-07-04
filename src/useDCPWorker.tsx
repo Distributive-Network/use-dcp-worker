@@ -492,6 +492,11 @@ const useDCPWorker = (
         // ensure computeGroups is array, {} by default from dcpConfig
         if (!(workerOptions.computeGroups instanceof Array))
           workerOptions.computeGroups = [];
+
+        // applicable when cores is saved to localStorage & maxWorkingSandboxes passed in userWorkerOptions to hook
+        // deprecate when maxWorkingSandboxes is not supported at all
+        if (workerOptions.hasOwnProperty('cores') && workerOptions.hasOwnProperty('maxWorkingSandboxes'))
+          delete workerOptions.maxWorkingSandboxes;
         
         /**
          *  Set up proxy so that when paymentAddress or cores is changed
