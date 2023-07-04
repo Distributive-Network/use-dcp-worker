@@ -406,16 +406,20 @@ const useDCPWorker = (
   }, []);
 
   /**
-   *  Performs a leaf merge onto the workerOptions object on the first level of properties.
-   *  workerOptions is the object that is passed to the worker constructor.
+   *  Performs a leaf merge onto the workerOptions object.
    *
    *  @param  {newWorkerOptions} newWorkerOptions options to apply
    */
   const applyWorkerOptions = useCallback((newWorkerOptions: IWorkerOptions) => {
     if (!newWorkerOptions)
       return;
+
     for (const prop in newWorkerOptions)
-      workerOptions[prop] = newWorkerOptions[prop];
+    {
+      if (typeof newWorkerOptions[prop] === 'object')
+        workerOptions[prop] = window.dcp.utils.leafMerge(workerOptions[prop], newWorkerOptions[prop]);
+      workerOptions[prop] = newWorkerOptions[prop]
+    }
   }, []);
 
   /**
@@ -468,7 +472,6 @@ const useDCPWorker = (
    *  workerOptions object returned. in the case local storage is enabled, properties.
    */
   const constructWorkerOptions = useCallback(() => {
-    console.log('newsssss');
     // if optionsError -> an error happened in previous execution of this method, therefore, we can retry
     if (!workerOptions || optionsError)
     {
@@ -480,7 +483,6 @@ const useDCPWorker = (
       else
       {
         // we can trust dcpConfig 
-        debugger;
         workerOptions = window.dcpConfig.worker ?? defaultWorkerOptions;
 
         optionsError = false;
@@ -495,14 +497,15 @@ const useDCPWorker = (
          *  Set up proxy so that when paymentAddress or cores is changed
          *  it is saved to localStorage and triggers re-render to components using this hook.
          */
-        const changeWatchList = ['paymentAddress', 'maxWorkingSandboxes', 'cores'];
+        const changeWatchList = ['paymentAddress', 'maxWorkingSandboxes', 'cores', 'cpu'];
         const workerOptionsHandler: ProxyHandler<any> = {
           get(target: any, property: string) {
+            if (typeof target[property] === 'object')
+              return new Proxy(target[property], workerOptionsHandler);
             return target[property];
           },
           set(target: any, property: any, value: any)
           {
-            console.log('setting', property);
             target[property] = value;
             if (changeWatchList.includes(property))
             {
