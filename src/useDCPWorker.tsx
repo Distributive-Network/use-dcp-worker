@@ -611,11 +611,11 @@ const useDCPWorker = ({
           });
         });
       });
-      dcpWorker.on('payment', (receipt: Receipt) => {
+      dcpWorker.on('payment', (payment: number) => {
         dispatchWorkerStats({ type: 'INCREMENT_SLICES' });
         dispatchWorkerStats({
           type: 'INCREMENT_CREDITS',
-          data: receipt.payment,
+          data: payment,
         });
       });
       dcpWorker.on('beforeFetch', () => {
