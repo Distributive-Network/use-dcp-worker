@@ -605,7 +605,7 @@ const useDCPWorker = ({
           });
         });
         sandbox.on('metrics', (_: any, measurements: any) => {
-          dispatchWorkerState({
+          dispatchWorkerStats({
             type: 'INCREMENT_COMPUTE_TIME',
             data: measurements.elapsed, // seconds
           });
