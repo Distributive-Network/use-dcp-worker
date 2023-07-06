@@ -592,13 +592,7 @@ const useDCPWorker = ({
       }
       // Attach listeners
       dcpWorker.on('sandbox', (sandbox: any) => {
-        sandbox.on('start', () => {
-          dispatchWorkerState({
-            type: 'SET_WORKING_SANDBOXES',
-            data: dcpWorker.workingSandboxes.length,
-          });
-        });
-        sandbox.on('sliceEnd', () => {
+        sandbox.on('slice', () => {
           dispatchWorkerState({
             type: 'SET_WORKING_SANDBOXES',
             data: dcpWorker.workingSandboxes.length,
@@ -616,6 +610,10 @@ const useDCPWorker = ({
         dispatchWorkerStats({
           type: 'INCREMENT_CREDITS',
           data: payment,
+        });
+        dispatchWorkerState({
+          type: 'SET_WORKING_SANDBOXES',
+          data: dcpWorker.workingSandboxes.length,
         });
       });
       dcpWorker.on('beforeFetch', () => {
