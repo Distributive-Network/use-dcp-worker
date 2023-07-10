@@ -495,7 +495,7 @@ const useDCPWorker = (
 
         // applicable when cores is saved to localStorage & maxWorkingSandboxes passed in userWorkerOptions to hook
         // deprecate when maxWorkingSandboxes is not supported at all
-        if (workerOptions.hasOwnProperty('cores') && workerOptions.hasOwnProperty('maxWorkingSandboxes'))
+        if (Object.hasOwn(workerOptions, 'cores') && Object.hasOwn(workerOptions, 'maxWorkingSandboxes'))
           delete workerOptions.maxWorkingSandboxes;
         
         /**
