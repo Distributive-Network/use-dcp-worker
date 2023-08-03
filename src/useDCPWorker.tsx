@@ -186,9 +186,9 @@ const workerStateReducer = (
     updatedState.fetching = true;
   } else if (action.type === 'FETCHING_FALSE') {
     updatedState.fetching = false;
-  } else if (action.type === 'SUBMIT_TRUE') {
+  } else if (action.type === 'SUBMITTING_TRUE') {
     updatedState.submitting = true;
-  } else if (action.type === 'SUBMIT_FALSE') {
+  } else if (action.type === 'SUBMITTING_FALSE') {
     updatedState.fetching = false;
   } else if (action.type === 'WORKING_TRUE') {
     updatedState.working = true;
@@ -592,68 +592,50 @@ const useDCPWorker = ({
       }
       // Attach listeners
       dcpWorker.on('sandbox', (sandbox: any) => {
-        let lastStarted = NaN;
-
-        const onStart = () => {
-          lastStarted = Date.now();
+        sandbox.on('slice', () => {
           dispatchWorkerState({
             type: 'SET_WORKING_SANDBOXES',
             data: dcpWorker.workingSandboxes.length,
           });
-        };
-
-        const onFinish = () => {
-          const timeSpent = Date.now() - lastStarted;
-          lastStarted = NaN;
-
-          if (isFinite(timeSpent))
-            dispatchWorkerStats({
-              type: 'INCREMENT_COMPUTE_TIME',
-              data: timeSpent,
-            });
-
-          dispatchWorkerState({
-            type: 'SET_WORKING_SANDBOXES',
-            data: dcpWorker.workingSandboxes.length,
+        });
+        sandbox.on('metrics', (_: any, measurements: any) => {
+          dispatchWorkerStats({
+            type: 'INCREMENT_COMPUTE_TIME',
+            data: measurements.elapsed, // seconds
           });
-        };
-
-        sandbox.on('start', onStart);
-        sandbox.on('sliceFinish', onFinish);
-        sandbox.on('terminate', () => {
-          sandbox.off('start', onStart);
-          sandbox.off('sliceFinish', onFinish);
         });
       });
-      dcpWorker.on('submit', () => {
+      dcpWorker.on('payment', (payment: number) => {
         dispatchWorkerStats({ type: 'INCREMENT_SLICES' });
-      });
-      dcpWorker.on('payment', (receipt: Receipt) => {
         dispatchWorkerStats({
           type: 'INCREMENT_CREDITS',
-          data: receipt.payment,
+          data: payment,
+        });
+        dispatchWorkerState({
+          type: 'SET_WORKING_SANDBOXES',
+          data: dcpWorker.workingSandboxes.length,
         });
       });
-      dcpWorker.on('fetchStart', () => {
+      dcpWorker.on('beforeFetch', () => {
         dispatchWorkerState({ type: 'FETCHING_TRUE' });
       });
-      dcpWorker.on('fetchEnd', () => {
+      dcpWorker.on('fetch', (payload: any) => {
+        if (payload instanceof Error)
+          return dispatchWorkerState({ type: 'ERROR', data: payload });
+
         // extra delay for cleaner UI visual updates between quick fetching states
         setTimeout(() => {
           dispatchWorkerState({ type: 'FETCHING_FALSE' });
         }, 1000);
       });
-      dcpWorker.on('fetchError', (error: Error) => {
-        dispatchWorkerState({ type: 'ERROR', data: error });
+      dcpWorker.on('beforeReturn', () => {
+        dispatchWorkerState({ type: 'SUBMITTING_TRUE' });
       });
-      dcpWorker.on('submitStart', () => {
-        dispatchWorkerState({ type: 'SUBMIT_TRUE' });
-      });
-      dcpWorker.on('submitEnd', () => {
-        dispatchWorkerState({ type: 'SUBMIT_FALSE' });
-      });
-      dcpWorker.on('submitError', (error: Error) => {
-        dispatchWorkerState({ type: 'ERROR', data: error });
+      dcpWorker.on('result', (payload: any) => {
+        if (payload instanceof Error)
+          return dispatchWorkerState({ type: 'ERROR', data: payload });
+
+        dispatchWorkerState({ type: 'SUBMITTING_FALSE' });
       });
       dcpWorker.on('start', () => {
         dispatchWorkerState({ type: 'WORKING_TRUE' });
