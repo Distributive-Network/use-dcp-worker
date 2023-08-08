@@ -181,12 +181,17 @@ const workerStatsReducer = (
 ) => {
   const updatedStats = { ...state };
 
-  if (action.type === WorkerStatsActions.ADD_COMPUTE_TIME) {
-    updatedStats.computeTime += action.data;
-  } else if (action.type === WorkerStatsActions.ADD_SLICE) {
-    updatedStats.slices++;
-  } else if (action.type === WorkerStatsActions.ADD_CREDITS) {
-    updatedStats.credits = updatedStats.credits.plus(action.data);
+  switch (action.type)
+  {
+    case WorkerStatsActions.ADD_COMPUTE_TIME:
+      updatedStats.computeTime += action.data;
+      break;
+    case WorkerStatsActions.ADD_SLICE:
+      updatedStats.slices++;
+      break;
+    case WorkerStatsActions.ADD_CREDITS:
+      updatedStats.credits = updatedStats.credits.plus(action.data);
+      break;
   }
 
   return updatedStats;
