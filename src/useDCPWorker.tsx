@@ -21,9 +21,37 @@ declare global
 {
   interface Window
   {
-    dcp: any;
+    dcp: {
+      wallet: {
+        Keystore: typeof Keystore
+        Address: typeof Address
+      }
+      utils: any;
+      worker: any;
+    };
     dcpConfig: any;
   }
+}
+
+declare class Address
+{
+  constructor(address: string | Address | undefined | null);
+  address: string;
+  toString(): string;
+
+  eq: (value: any) => boolean;
+}
+
+declare class Keystore
+{
+  constructor(privateKey: any, passpharase: string | false);
+  address: Address;
+
+  label: string;
+
+  toString(): string;
+
+  eq: (value: any) => boolean;
 }
 
 declare interface IWorkerOptions
@@ -50,7 +78,7 @@ declare interface IWorkerOptions
     gpu?: number;
   };
   maxWorkingSandboxes?: number | undefined;
-  paymentAddress?: any;
+  paymentAddress?: Keystore | Address | string | null;
   evaluatorOptions?: {};
 }
 
