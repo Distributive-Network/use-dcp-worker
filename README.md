@@ -52,6 +52,9 @@ The hook accepts a single object with the following parameters:
 - `identity?: Keystore`: A Keystore object (`dcp.wallet.Keystore`) which is passed to the Worker constructor and set as the Worker's identity when communicating over the network. If a Keystore is not provided, an arbitrary one will be generated.
 - `useLocalStorage?: boolean = true`:  A flag to toggle the use of the browser's local storage. The `workerOptions` object is the entity to be saved to local storage and is updated accordingly when calling `setWorkerOptions`.
 - `workerOptions: object`: The contents of this object will override the default values coming from the worker configuration coming from `dcpConfig`(provided by `dcp-client`, worker node sourced from `dcp-worker`). The only required property of `workerOptions` is `paymentAddress`. The following properties describe the worker options object configuring the DCP Worker:
+  - `paymentAddress: string | Address | Keystore`: A string, Address (`dcp.wallet.Address`) or Keystore (`dcp.wallet.Keystore`) identifying a DCP Bank Account to deposit earned DCCs.
+
+    __Note:__ Passing an invalid `paymentAddress` will be logged to the console but will not cause the hook to throw an error. The Worker will not be constructed (`worker === undefined`) and the hook will retry construction/initialization on each re-render.
   - `trustComputeGroupOrigins?: boolean = true`: Trust the scheduler to tell client about allowed origins for jobs in a compute group.
   - `allowOrigins?: object`: Allow list permitting network access beyond DCP messages to services. This list is used only in setting up the DCP Worker. After the worker is constructed/loaded, the `originManager` is responsible for managing origins (see Managing Origins). It's empty by default.
     - `any: []`: A list of origins that are allowed to communicate with, for all purposes.
@@ -68,9 +71,6 @@ The hook accepts a single object with the following parameters:
   - `leavePublicGroup?: boolean = false`: A flag that controls if the worker should omit fetching work from the public compute group. If not defined, this flag is evaluated to _false_.
   - `jobAddresses?: []`: If populated, worker will only fetch slices from jobs corresponding to the job addresses in this list.
   - `maxWorkingSandboxes?: number | undefined`: Maximum number of sandboxes allowed to do work. If `undefined`, then the Supervisor will determine a safe limit, based off of machine hardware.
-  - `paymentAddress: string | Address | Keystore`: A string, Address (`dcp.wallet.Address`) or Keystore (`dcp.wallet.Keystore`) identifying a DCP Bank Account to deposit earned DCCs.
-
-    __Note:__ Passing an invalid `paymentAddress` will be logged to the console but will not cause the hook to throw an error. The Worker will not be constructed (`worker === undefined`) and the hook will retry construction/initialization on each re-render.
   - `shouldStopWorkerImmediately?: boolean`: If true, when the worker is called to stop, it will terminate all working sandboxes without waiting for them to finish. If false, the worker will wait for all sandboxes to finish computing before terminating.
 
 Note: Learn more about `Keystore` and `Address` in our [Wallet API documentation](https://docs.dcp.dev/specs/wallet-api.html).
