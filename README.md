@@ -68,7 +68,9 @@ The hook accepts a single object with the following parameters:
   - `leavePublicGroup?: boolean = false`: A flag that controls if the worker should omit fetching work from the public compute group. If not defined, this flag is evaluated to _false_.
   - `jobAddresses?: []`: If populated, worker will only fetch slices from jobs corresponding to the job addresses in this list.
   - `maxWorkingSandboxes?: number | undefined`: Maximum number of sandboxes allowed to do work. If `undefined`, then the Supervisor will determine a safe limit, based off of machine hardware.
-  - `paymentAddress: Keystore | Address | string`: A Keystore, Address (`dcp.wallet.Address`) or string identifying a DCP Bank Account to deposit earned DCCs.
+  - `paymentAddress: string | Address | Keystore`: A string, Address (`dcp.wallet.Address`) or Keystore (`dcp.wallet.Keystore`) identifying a DCP Bank Account to deposit earned DCCs.
+
+    __Note:__ Passing an invalid `paymentAddress` will be logged to the console but will not cause the hook to throw an error. The Worker will not be constructed (`worker === undefined`) and the hook will retry construction/initialization on each re-render.
   - `shouldStopWorkerImmediately?: boolean`: If true, when the worker is called to stop, it will terminate all working sandboxes without waiting for them to finish. If false, the worker will wait for all sandboxes to finish computing before terminating.
 
 Note: Learn more about `Keystore` and `Address` in our [Wallet API documentation](https://docs.dcp.dev/specs/wallet-api.html).
