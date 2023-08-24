@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import useDCPWorker from 'use-dcp-worker';
 
-const paymentAddress = import.meta.env.VITE_WORKER_PAYMENT_ADDRESS;
+const workerPaymentAddress = import.meta.env.VITE_WORKER_PAYMENT_ADDRESS;
 
 function App() {
-  const [workerPaymentAddress, setWorkerPaymentAddress] = useState(paymentAddress);
+  const [paymentAddress, setPaymentAddress] = useState(workerPaymentAddress);
   const { compute, wallet } = window.dcp;
 
   // triggers client modal and sets workerPaymentAddress
@@ -14,7 +14,7 @@ function App() {
     try
     {
       let ks = await wallet.get();
-      setWorkerPaymentAddress(ks.address);
+      setPaymentAddress(ks.address);
     }
     catch (e)
     {
@@ -25,13 +25,13 @@ function App() {
 
   // resolve payment address for worker options
   // if .env var is not set, trigger client modal
-  if (!workerPaymentAddress)
+  if (!paymentAddress)
     getPaymentAddress();
 
   // use use-dcp-worker hook
   const config = {
     workerOptions: { 
-      paymentAddress: workerPaymentAddress,
+      paymentAddress,
       leavePublicGroup: true, // to ensure worker does NOT work on public jobs
     },
     useLocalStorage: false,

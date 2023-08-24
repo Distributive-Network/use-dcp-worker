@@ -26,7 +26,7 @@ function App() {
 
   // resolve payment address for worker options
   // if .env var is not set, trigger client modal
-  if (!workerPaymentAddress)
+  if (!paymentAddress)
     getPaymentAddress();
 
   // use-dcp-worker
