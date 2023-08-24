@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import useDCPWorker from 'use-dcp-worker';
 
-const paymentAddress = process.env.REACT_APP_WORKER_PAYMENT_ADDRESS;
+const paymentAddress = import.meta.env.VITE_WORKER_PAYMENT_ADDRESS;
 
 function App() {
   const [workerPaymentAddress, setWorkerPaymentAddress] = useState(paymentAddress);
@@ -110,31 +110,31 @@ function App() {
     if (worker)
     {
       // on start event -> workerState.working = true
-      worker.on('start', (ev) => {
+      worker.on('start', () => {
         workerLog.innerHTML += '<br><span style="color:green">Worker started</span>';
       });
-      worker.on('sandbox', (ev) => {
+      worker.on('sandbox', () => {
         workerLog.innerHTML += '<br><span style="color:purple">Sandbox created</span>';
       });
-      worker.on('fetch', (ev) => {
+      worker.on('fetch', () => {
         workerLog.innerHTML += '<br><span style="color:blue">Task fetched</span>';
       });
-      worker.on('stop', (ev) => {
+      worker.on('stop', () => {
         workerLog.innerHTML += '<br><span style="color:darkorange">Worker was asked to stop...</span>';
       });
-      worker.on('end', (ev) => {
+      worker.on('end', () => {
         workerLog.innerHTML += '<br><span style="color:red">Worker stopped</span>'
       });
       worker.on('error', (ev) => {
         workerLog.textContent = ev.toString();
       });
     }
-  }, [worker]);
+  }, [worker, workerLog]);
 
   return (
     <div>
-      <h1>Advanced use-dcp-worker application</h1> 
-      <p><strong>Scheduler:</strong> { process.env.REACT_APP_SCHEDULER_LOCATION }</p>
+      <h1>Advanced use-dcp-worker application</h1>
+      <p><strong>Scheduler:</strong> { import.meta.env.VITE_SCHEDULER_LOCATION }</p>
       <p><strong>Worker Payment Address:</strong> { worker?.workerOptions.paymentAddress?.address }</p>
       <p style={{color: 'grey'}}>Scheduler and payment address are configurable in .env</p>
       <div id="flex-container">

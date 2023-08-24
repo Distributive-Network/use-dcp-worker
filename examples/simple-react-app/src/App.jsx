@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import useDCPWorker from 'use-dcp-worker';
 
-const workerPaymentAddress = process.env.REACT_APP_WORKER_PAYMENT_ACCOUNT;
+const workerPaymentAddress = import.meta.env.VITE_WORKER_PAYMENT_ACCOUNT;
 
 function App() {
   const [paymentAddress, setPaymentAddress] = useState(workerPaymentAddress);
@@ -42,7 +42,7 @@ function App() {
 
     worker.on('start', () => { statusText.textContent = "Started" });
     worker.on('stop', () => { statusText.textContent = "Stopped" });
-    worker.on('error', (error) => { statusText.textContent = "Error" });
+    worker.on('error', () => { statusText.textContent = "Error" });
   }
 
   function startWorker()
