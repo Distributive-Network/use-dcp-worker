@@ -50,7 +50,7 @@
   },
   "packageManager": "npm@9.6.7",
   "engines": {
-    "node": ">=16",
+    "node": ">=18",
     "npm": ">=7"
   }
 }
