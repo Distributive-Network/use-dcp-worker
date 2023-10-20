@@ -34,9 +34,6 @@
     "lint": "eslint --cache --cache-strategy=content --cache-location=.cache/eslint/ --ignore-path=.gitignore --ext=tsx .",
     "prepare": "npm run build"
   },
-  "dependencies": {
-    "bignumber.js": "^9.1.2"
-  },
   "devDependencies": {
     "@types/react": "^18.2.30",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
@@ -48,6 +45,7 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
+    "bignumber.js": ">=9",
     "react": "^16.8.0  || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0  || ^17.0.0 || ^18.0.0"
   },
