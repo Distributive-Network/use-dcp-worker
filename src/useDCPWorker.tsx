@@ -605,6 +605,12 @@ const useDCPWorker = (
             data: measurements.elapsed, // seconds
           });
         });
+        sandbox.on('end', () => {
+          dispatchWorkerState({
+            type: WorkerStateActions.SET_WORKER_SBX,
+            data: dcpWorker.workingSandboxes.length,
+          });
+        });
       });
       dcpWorker.on('payment', (payment: number) => {
         dispatchWorkerStats({ type: WorkerStatsActions.ADD_SLICE });
