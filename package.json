@@ -31,6 +31,7 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
+    "lint": "eslint --cache --cache-strategy=content --cache-location=.cache/eslint/ --ignore-path=.gitignore --ext=tsx .",
     "prepare": "npm run build"
   },
   "dependencies": {
@@ -42,6 +43,8 @@
     "@typescript-eslint/parser": "^6.8.0",
     "eslint": "^8.51.0",
     "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-react-refresh": "0.4.3",
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
