@@ -588,72 +588,77 @@ const useDCPWorker = (
       if (!workerId)
         workerId = await new window.dcp.wallet.Keystore(null, false);
 
-      // DCP Worker constructor
-      const dcpWorker = new window.dcp.worker.Worker(workerId, workerOptions);
+      createWorker();
+      function createWorker()
+      {
+        // DCP Worker constructor
+        const dcpWorker = new window.dcp.worker.Worker(workerId, workerOptions);
 
-      // Attach listeners
-      dcpWorker.on('sandbox', (sandbox: any) => {
-        sandbox.on('slice', () => {
-          dispatchWorkerState({
-            type: WorkerStateActions.SET_WORKER_SBX,
-            data: dcpWorker.workingSandboxes.length,
+        // Attach listeners
+        dcpWorker.on('sandbox', (sandbox: any) => {
+          sandbox.on('slice', () => {
+            dispatchWorkerState({
+              type: WorkerStateActions.SET_WORKER_SBX,
+              data: dcpWorker.workingSandboxes.length,
+            });
+          });
+          sandbox.on('metrics', (_: any, measurements: any) => {
+            dispatchWorkerStats({
+              type: WorkerStatsActions.ADD_COMPUTE_TIME,
+              data: measurements.elapsed, // seconds
+            });
+          });
+          sandbox.on('end', () => {
+            dispatchWorkerState({
+              type: WorkerStateActions.SET_WORKER_SBX,
+              data: dcpWorker.workingSandboxes.length,
+            });
           });
         });
-        sandbox.on('metrics', (_: any, measurements: any) => {
+        dcpWorker.on('payment', (payment: number) => {
+          dispatchWorkerStats({ type: WorkerStatsActions.ADD_SLICE });
           dispatchWorkerStats({
-            type: WorkerStatsActions.ADD_COMPUTE_TIME,
-            data: measurements.elapsed, // seconds
+            type: WorkerStatsActions.ADD_CREDITS,
+            data: payment,
           });
-        });
-        sandbox.on('end', () => {
           dispatchWorkerState({
             type: WorkerStateActions.SET_WORKER_SBX,
             data: dcpWorker.workingSandboxes.length,
           });
         });
-      });
-      dcpWorker.on('payment', (payment: number) => {
-        dispatchWorkerStats({ type: WorkerStatsActions.ADD_SLICE });
-        dispatchWorkerStats({
-          type: WorkerStatsActions.ADD_CREDITS,
-          data: payment,
+        dcpWorker.on('beforeFetch', () => {
+          dispatchWorkerState({ type: WorkerStateActions.FETCHING_TRUE });
         });
-        dispatchWorkerState({
-          type: WorkerStateActions.SET_WORKER_SBX,
-          data: dcpWorker.workingSandboxes.length,
+        dcpWorker.on('fetch', (payload: any) => {
+          if (payload instanceof Error)
+            return dispatchWorkerState({ type: WorkerStateActions.ERROR, data: payload });
+
+          // extra delay for cleaner UI visual updates between quick fetching states
+          setTimeout(() => {
+            dispatchWorkerState({ type: WorkerStateActions.FETCHING_FALSE });
+          }, 1000);
         });
-      });
-      dcpWorker.on('beforeFetch', () => {
-        dispatchWorkerState({ type: WorkerStateActions.FETCHING_TRUE });
-      });
-      dcpWorker.on('fetch', (payload: any) => {
-        if (payload instanceof Error)
-          return dispatchWorkerState({ type: WorkerStateActions.ERROR, data: payload });
+        dcpWorker.on('beforeReturn', () => {
+          dispatchWorkerState({ type: WorkerStateActions.SUBMIT_TRUE });
+        });
+        dcpWorker.on('result', (payload: any) => {
+          if (payload instanceof Error)
+            return dispatchWorkerState({ type: WorkerStateActions.ERROR, data: payload });
 
-        // extra delay for cleaner UI visual updates between quick fetching states
-        setTimeout(() => {
-          dispatchWorkerState({ type: WorkerStateActions.FETCHING_FALSE });
-        }, 1000);
-      });
-      dcpWorker.on('beforeReturn', () => {
-        dispatchWorkerState({ type: WorkerStateActions.SUBMIT_TRUE });
-      });
-      dcpWorker.on('result', (payload: any) => {
-        if (payload instanceof Error)
-          return dispatchWorkerState({ type: WorkerStateActions.ERROR, data: payload });
+          dispatchWorkerState({ type: WorkerStateActions.SUBMIT_FALSE });
+        });
+        dcpWorker.on('start', () => {
+          dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_TRUE });
+          dispatchWorkerState({ type: WorkerStateActions.WORKING_TRUE });
+        });
+        dcpWorker.on('stop', () => {
+          dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_FALSE });
+          dispatchWorkerState({ type: WorkerStateActions.WORKING_FALSE });
+          createWorker();
+        });
 
-        dispatchWorkerState({ type: WorkerStateActions.SUBMIT_FALSE });
-      });
-      dcpWorker.on('start', () => {
-        dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_TRUE });
-        dispatchWorkerState({ type: WorkerStateActions.WORKING_TRUE });
-      });
-      dcpWorker.on('stop', () => {
-        dispatchWorkerState({ type: WorkerStateActions.WILL_WORK_FALSE });
-        dispatchWorkerState({ type: WorkerStateActions.WORKING_FALSE });
-      });
-
-      setWorker(dcpWorker);
+        setWorker(dcpWorker);
+      }
     }
     initializeWorker();
 
