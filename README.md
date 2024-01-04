@@ -113,29 +113,5 @@ Upon construction of the worker, the worker options `allowOrigins` property is r
 - `remove_byKey(key):` Removes all origins for all purposes under the _key_. A `null` _key_ is not accepted, must be a string.
 - `getAllowList(purpose, key):` returns a list of origins under the _purpose_ and _key_. A `null` _purpose_ is not accepted, must be a string. Previously added origins under `null` _purpose_ and/or _key_ will match any _purpose_ and/or _key_, respectively.
 - `isAllowed(origin, purpose, key):` returns `true` if _origin_ is allowed under the _purpose_ and _key_. A `null` _purpose_ is not accepted, must be a string. Previously added origins under `null` _purpose_ and/or _key_ will match any _purpose_ and/or _key_, respectively.
-# Change log
-- __2.0.0__ - Aug 2023
-  - now returns the worker
-  - proper handling of race-condition in constructing the worker when/if the hook is executed multiple times at once
-  - workerOptions passed to worker constructor is a Proxy now
-    - needed reflect changes to paymentAddress and maxWorkingSandbox props to local storage and trigger component update/re-render
-  - removed workerState.isLoaded since now we are returning the worker
-    - !isLoaded === !worker
-  - removed workerOptionsState, start/stop/toggleWorker, sandboxes, originManager
-    - these are all accessible via Worker API
-  - removed applyWorkerOptions since editing workerOptions should be done by directly mutating worker.workerOptions
-  - improved error handling
-  - quality of life improvements
-- __1.0.4__ - Aug 3, 2023
-  - compatibility update for new Worker events from dcp-client
-- __1.0.2__ - Mar 23, 2023
-  - local storage will only save paymentAddress and maxWorkingSandbox props
-  - workerOptions source always coming from dcpConfig
-  - added delay between quick worker fetching states
-  - Quality of life + maintainability improvements
-- __1.0.1__ - Mar 1, 2023
-  - Added src/ directory to published files to support source map
-- __1.0.0__ - Feb 28, 2023
-  - Inital Release
 # License
 Please refer to the [LICENSE](LICENSE) file for more information.
