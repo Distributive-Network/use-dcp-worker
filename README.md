@@ -4,7 +4,7 @@ DCP, Distributive Compute Protocol, is a fast, secure, and powerful parallel com
 
 A DCP Worker performs compute tasks on the network in exchange for DCCs (Distributive Compute Credits). This package allows anyone to setup a DCP Worker within their own React projects.
 
-Find out more at https://kingsds.network/.
+Find out more at <https://docs.dcp.dev/>.
 
 How to install:
 ```
