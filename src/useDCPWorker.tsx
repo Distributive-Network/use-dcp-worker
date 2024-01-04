@@ -396,7 +396,7 @@ interface IUseDCPWorkerParams
  * @param config.workerOptions   WorkerOptions to configure the worker.
  * @returns `{worker, workerOptions, workerState, workerStatistics}`
  */
-const useDCPWorker = (
+export const useDCPWorker = (
   {
     identity = null,
     useLocalStorage = true,
@@ -673,5 +673,3 @@ const useDCPWorker = (
     workerStatistics,
   };
 };
-
-export default useDCPWorker;

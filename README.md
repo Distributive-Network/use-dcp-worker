@@ -58,7 +58,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 Finally, call the hook in the components and start hooking the worker's events into you app.
 
 ```javascript
-import useDCPWorker from 'use-dcp-worker';
+import { useDCPWorker } from 'use-dcp-worker';
 
 export function App() {
   const { worker, workerState, workerStatistics } = useDCPWorker({
