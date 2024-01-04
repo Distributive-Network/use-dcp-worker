@@ -145,3 +145,6 @@ dist
 
 # Build output for the hook.
 /lib/
+
+# Lockfiles for examples.
+/examples/**/package-lock.json

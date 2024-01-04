@@ -1,24 +1,21 @@
-import { useState } from 'react';
-import useDCPWorker from 'use-dcp-worker';
+import { useEffect, useRef, useState } from 'react';
+import { useDCPWorker } from 'use-dcp-worker';
 
-const workerPaymentAddress = import.meta.env.VITE_WORKER_PAYMENT_ACCOUNT;
+const workerPaymentAddress = import.meta.env.VITE_WORKER_PAYMENT_ADDRESS;
 
 function App() {
   const [paymentAddress, setPaymentAddress] = useState(workerPaymentAddress);
-  // window.dcp is populated from dcp-client script in public/index.html 
+  const statusTextElement = useRef(null);
+
+  // window.dcp is populated from dcp-client script in public/index.html
   const { wallet } = window.dcp;
 
   // triggers client modal and sets workerPaymentAddress
-  async function getPaymentAddress()
-  {
-    console.warn('Did not specifiy BANK_ACCOUNT_ADDRESS env var. Calling wallet.get.');
-    try
-    {
+  async function getPaymentAddress() {
+    try {
       let ks = await wallet.get(); // Wallet API
       setPaymentAddress(ks.address);
-    }
-    catch (e)
-    {
+    } catch (e) {
       console.error(e);
       alert(e);
     }
@@ -26,40 +23,59 @@ function App() {
 
   // resolve payment address for worker options
   // if .env var is not set, trigger client modal
-  if (!paymentAddress)
-    getPaymentAddress();
+  if (!paymentAddress) getPaymentAddress();
 
   // use-dcp-worker
-  const config = { workerOptions: { paymentAddress }};
+  const config = { workerOptions: { paymentAddress } };
   const { worker } = useDCPWorker(config);
 
-  // front-end worker status visualization logic
-  const statusText = document.getElementById('status-text');
-  if (worker)
-  {
-    if (statusText.textContent === 'Not Ready') 
-      statusText.textContent = "Ready";
+  useEffect(() => {
+    if (statusTextElement.current.textContent === 'Not Ready')
+      statusTextElement.current.textContent = 'Ready';
 
-    worker.on('start', () => { statusText.textContent = "Started" });
-    worker.on('stop', () => { statusText.textContent = "Stopped" });
-    worker.on('error', () => { statusText.textContent = "Error" });
+    function handleStart() {
+      statusTextElement.current.textContent = 'Started';
+    }
+
+    function handleStop() {
+      statusTextElement.current.textContent = 'Stopped';
+    }
+
+    function handleError() {
+      statusTextElement.current.textContent = 'Error';
+    }
+
+    worker?.on('start', handleStart);
+    worker?.on('stop', handleStop);
+    worker?.on('error', handleError);
+
+    return () => {
+      worker?.off('start', handleStart);
+      worker?.off('stop', handleStop);
+      worker?.off('error', handleError);
+    };
+  }, [worker]);
+
+  function startWorker() {
+    worker.start();
   }
 
-  function startWorker()
-  {
-    if (worker) worker.start();
-  }
-
-  function stopWorker()
-  {
-    if (worker) worker.stop();
+  function stopWorker() {
+    worker.stop(true);
   }
 
   return (
     <div>
-      <h1>Simple use-dcp-worker application</h1> 
-      <h3>Status: <span id="status-text">Not Ready</span></h3>
-      <button style={{marginRight: '20px'}} onClick={startWorker}>Start Worker</button>
+      <h1>Simple use-dcp-worker application</h1>
+      <h3>
+        Status:{' '}
+        <span ref={statusTextElement} id="status-text">
+          Not Ready
+        </span>
+      </h3>
+      <button style={{ marginRight: '20px' }} onClick={startWorker}>
+        Start Worker
+      </button>
       <button onClick={stopWorker}>Stop Worker</button>
     </div>
   );
