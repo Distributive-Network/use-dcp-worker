@@ -656,6 +656,7 @@ export const useDCPWorker = (
           dispatchWorkerState({ type: WorkerStateActions.WORKING_FALSE });
           createWorker();
         });
+        dcpWorker.on('error', console.error);
 
         setWorker(dcpWorker);
       }
