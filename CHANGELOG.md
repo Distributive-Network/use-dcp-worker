@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [3.0.2] - 2024-01-04
+
+- Clear the `error` state when the worker fetches successfully.
+
+## [3.0.1] - 2024-01-04
+
+- Add a default handler for the `error` event from the worker. This should help mitigate the vauge
+  error that's logged when there's no event listener attached when the event fires.
+
 ## [3.0.0] - 2024-01-04
 
 ### Changed
