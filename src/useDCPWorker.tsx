@@ -103,7 +103,7 @@ interface IDefaultWorkerState
   willWork: boolean | null;
   fetching: boolean;
   submitting: boolean;
-  error: Error | boolean;
+  error: Error | undefined;
 }
 const defaultWorkerState: IDefaultWorkerState = {
   workingSandboxes: 0,
@@ -111,7 +111,7 @@ const defaultWorkerState: IDefaultWorkerState = {
   willWork: null,
   fetching: false,
   submitting: false,
-  error: false,
+  error: undefined,
 };
 
 let hasStartedWorkerInit = false, optionsError = false;
@@ -169,7 +169,6 @@ const workerStateReducer = (
       updatedState.willWork = false;
       break;
     case WorkerStateActions.ERROR:
-      console.error('use-dcp-worker: Worker error occured:', action.data);
       updatedState.error = action.data;
       break;
   }
@@ -632,6 +631,9 @@ export const useDCPWorker = (
         dcpWorker.on('fetch', (payload: any) => {
           if (payload instanceof Error)
             return dispatchWorkerState({ type: WorkerStateActions.ERROR, data: payload });
+
+          // Successful fetch, so clear any errors from a previous fetch.
+          dispatchWorkerState({ type: WorkerStateActions.ERROR, data: undefined });
 
           // extra delay for cleaner UI visual updates between quick fetching states
           setTimeout(() => {
