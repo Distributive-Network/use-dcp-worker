@@ -216,7 +216,7 @@ specification.
 
 ## License
 
-MIT © 2023 Distributive Corp.
+MIT © 2024 Distributive Corp.
 
 [npm-version-badge]: https://img.shields.io/npm/v/use-dcp-worker
 [standard-readme-badge]:
