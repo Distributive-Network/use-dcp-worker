@@ -35,21 +35,21 @@
     "prepare": "npm run build"
   },
   "devDependencies": {
-    "@types/react": "^18.2.30",
-    "@typescript-eslint/eslint-plugin": "^6.8.0",
-    "@typescript-eslint/parser": "^6.8.0",
-    "eslint": "^8.51.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "4.6.0",
-    "eslint-plugin-react-refresh": "0.4.3",
-    "typescript": "^5.2.2"
+    "@types/react": "18.3.4",
+    "@typescript-eslint/eslint-plugin": "8.3.0",
+    "@typescript-eslint/parser": "8.3.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-react": "7.35.0",
+    "eslint-plugin-react-hooks": "4.6.2",
+    "eslint-plugin-react-refresh": "0.4.11",
+    "typescript": "5.5.4"
   },
   "peerDependencies": {
     "bignumber.js": ">=9",
     "react": "^16.8.0  || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0  || ^17.0.0 || ^18.0.0"
   },
-  "packageManager": "npm@9.6.7",
+  "packageManager": "npm@10.8.2+sha512.c7f0088c520a46596b85c6f8f1da943400199748a0f7ea8cb8df75469668dc26f6fb3ba26df87e2884a5ebe91557292d0f3db7d0929cdb4f14910c3032ac81fb",
   "engines": {
     "node": ">=18",
     "npm": ">=7"
