@@ -325,45 +325,22 @@ function getWorkerOptionsKey()
  *
  *  Also removes instances of the old format for storing the worker options.
  *
- *  @returns {WorkerOptions?} The worker options, or null if they weren't found.
+ *  @returns The worker options, or null if they weren't found.
  */
-function loadWorkerOptions()
+function loadWorkerOptions(): WorkerOptions | null
 {
   const options = window.localStorage.getItem('dcp-worker-options');
   const storage = options === null ? {} : JSON.parse(options);
 
-  let loadedOptions;
+  let loadedOptions: WorkerOptions | null = null;
 
   if (Object.hasOwn(storage, getWorkerOptionsKey()))
   {
     loadedOptions = storage[getWorkerOptionsKey()];
   }
-  else if (Object.hasOwn(storage, 'defaultMaxWorkers'))
-  {
-    loadedOptions = storage;
-  }
 
   if (!loadedOptions)
     return null;
-
-  if (Object.hasOwn(loadedOptions, 'paymentAddress'))
-  {
-    if (loadedOptions.paymentAddress instanceof window.dcp.wallet.Keystore)
-    {
-      loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress.address);
-    }
-    else if (!(loadedOptions.paymentAddress instanceof window.dcp.wallet.Address))
-    {
-      loadedOptions.paymentAddress = new window.dcp.wallet.Address(loadedOptions.paymentAddress);
-    }
-  }
-
-  // If the saved options have `defaultMaxWorkers`, change that to `defaultMaxSliceCount`
-  if (Object.hasOwn(loadedOptions, 'defaultMaxWorkers'))
-  {
-    loadedOptions.defaultMaxSliceCount = loadedOptions.defaultMaxWorkers;
-    delete loadedOptions.defaultMaxWorkers;
-  }
 
   return loadedOptions;
 }
@@ -469,13 +446,13 @@ export const useDCPWorker = (
       storageOptions = loadWorkerOptions();
 
     if (storageOptions)
-      applyWorkerOptions(storageOptions); // paymentAddress and maxWorkingSandboxes from localStorage applied onto workerOptions
+      applyWorkerOptions(storageOptions);
   }, [userWorkerOptions]);
 
   /**
    *  If local storage is enabled:
    * 
-   *  Saves the current cores and paymentAddress configuration
+   *  Saves the current cores configuration
    *  under dcp-worker-options in local storage to be loaded in next time.
    */
   const saveWorkerOptions = useCallback(() => {
@@ -486,7 +463,6 @@ export const useDCPWorker = (
     // Save the worker options indexed by the user's Identity
     storage[getWorkerOptionsKey()] = {
       cores: workerOptions.cores,
-      paymentAddress: workerOptions.paymentAddress,
     };
     localStorage.setItem('dcp-worker-options', JSON.stringify(storage));
   }, []);
