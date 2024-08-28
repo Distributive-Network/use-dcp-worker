@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [4.0.0] - 2024-08-28
+
+- **Breaking:** The worker's `paymentAddress` is no longer saved in `window.localStorage`.
+  - This lets apps to have more control over how it's persisted. A similar
+  change will happen for the `cores` option in a future version.
+
 ## [3.0.2] - 2024-01-04
 
 - Clear the `error` state when the worker fetches successfully.
