@@ -17,8 +17,14 @@
   },
   "license": "MIT",
   "author": "Kirill Kirnichansky <kirill@distributive.network>",
+  "maintainers": [
+    "Bryan Hoang <bryan@distributive.network>"
+  ],
   "contributors": [
-    "Robert Mirandola <robert@distributive.network>"
+    "Robert Mirandola <robert@distributive.network>",
+    "Eddie Roosenmallen <eddie@distributive.network>",
+    "Ryan Saweczko <ryansaweczko@distributive.network>",
+    "David Courtis <david@distributive.network>"
   ],
   "main": "lib/useDCPWorker.js",
   "directories": {
