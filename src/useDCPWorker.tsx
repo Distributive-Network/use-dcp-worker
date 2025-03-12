@@ -347,7 +347,6 @@ function loadWorkerOptions(): WorkerOptions | null
 
 interface IUseDCPWorkerParams
 {
-  identity?: any;
   useLocalStorage?: boolean;
   workerOptions: IWorkerOptions;
 }
@@ -364,8 +363,6 @@ interface IUseDCPWorkerParams
  * 
  * Errors may also be emited by the worker, in which then, they are set to `workerState.error` and will not cause the hook to throw.
  *
- * @param config.identity        Value to set the identity of the worker. Must be of type dcp.wallet.Address. Optional.
- *                               If not provided, an identity will be generated.
  * @param config.useLocalStorage Boolean flag to enable the use of localStorage to save workerOptions.
  *                               This will override `paymentAddress` and `maxWorkingSandboxes` properties defined in
  *                               `config.workerOptions`. Optional, set to `true` by default.
@@ -374,7 +371,6 @@ interface IUseDCPWorkerParams
  */
 export const useDCPWorker = (
   {
-    identity = null,
     useLocalStorage = true,
     workerOptions: userWorkerOptions,
   }: IUseDCPWorkerParams
@@ -552,22 +548,18 @@ export const useDCPWorker = (
 
   // Worker Initialization
   useEffect(() => {
-    async function initializeWorker()
+    function initializeWorker()
     {
       // prevents race condition if hook is called multiple times || options error
       if (hasStartedWorkerInit || optionsError)
         return;
       hasStartedWorkerInit = true;
 
-      let workerId = identity;
-      if (!workerId)
-        workerId = await new window.dcp.wallet.Keystore(null, false);
-
       createWorker();
       function createWorker()
       {
         // DCP Worker constructor
-        const dcpWorker = new window.dcp.worker.Worker(workerId, workerOptions);
+        const dcpWorker = new window.dcp.worker.Worker(false, workerOptions);
 
         // Attach listeners
         dcpWorker.on('sandbox', (sandbox: any) => {
