@@ -559,7 +559,7 @@ export const useDCPWorker = (
       function createWorker()
       {
         // DCP Worker constructor
-        const dcpWorker = new window.dcp.worker.Worker(false, workerOptions);
+        const dcpWorker = new window.dcp.worker.DistributiveWorker(workerOptions);
 
         // Attach listeners
         dcpWorker.on('sandbox', (sandbox: any) => {
