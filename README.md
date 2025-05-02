@@ -140,8 +140,8 @@ The hook accepts a single object with the following parameters:
     `{ joinKey: 'exampleGroup', joinSecret: 'password' }`.
   - `leavePublicGroup?: boolean = false`: A flag that controls if the worker should omit fetching
     work from the public compute group. If not defined, this flag is evaluated to _false_.
-  - `jobAddresses?: []`: If populated, worker will only fetch slices from jobs corresponding to the
-    job addresses in this list.
+  - `jobIds?: []`: If populated, worker will only fetch slices from jobs corresponding to the
+    job ids in this list.
   - `maxWorkingSandboxes?: number | undefined`: Maximum number of sandboxes allowed to do work. If
     `undefined`, then the Supervisor will determine a safe limit, based off of machine hardware.
   - `shouldStopWorkerImmediately?: boolean`: If true, when the worker is called to stop, it will

@@ -72,7 +72,7 @@ function App() {
     // this is paired with setting worker.workerOptions.leavePublicGroup to false
     // ensure worker only works on this job and only this job
     job.on('accepted', (ev) => {
-      worker.workerOptions.jobAddresses.push(ev.address);
+      worker.workerOptions.jobIds.push(ev.id);
     });
     job.on('result', (ev) => {
       log.innerHTML += `<br>result: ${ev.result}`;

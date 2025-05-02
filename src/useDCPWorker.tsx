@@ -72,7 +72,7 @@ declare interface IWorkerOptions
     out: number;
   };
   computeGroups?: Array<any>;
-  jobAddresses?: Array<string>;
+  jobIds?: Array<string>;
   cores?: {
     cpu?: number;
     gpu?: number;
@@ -244,7 +244,7 @@ const defaultWorkerOptions: IWorkerOptions = {
     out: 0,
   },
   computeGroups: [],
-  jobAddresses: [],
+  jobIds: [],
   maxWorkingSandboxes: undefined,
   paymentAddress: null,
   evaluatorOptions: {},
